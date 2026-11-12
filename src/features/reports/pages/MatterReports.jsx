@@ -220,14 +220,14 @@ export function MatterReports() {
   return (
     <div className="space-y-6">
       {/* Filevine Requirements Banner */}
-      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
-        <div className="flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-emerald-700 shrink-0" />
+      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950">
+        <div className="flex items-start sm:items-center gap-2 min-w-0">
+          <ShieldAlert className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 sm:mt-0" />
           <span>
             <strong>Operational Integrity Reports (Filevine Architecture):</strong> Active audit reports identifying stalled cases (&gt;30 days inactive), missing gatekeeper documents, approaching statutory deadlines, and employee overdue workloads.
           </span>
         </div>
-        <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+        <span className="bg-emerald-200 text-emerald-900 font-bold px-2.5 py-0.5 rounded text-[10px] whitespace-nowrap shrink-0 self-start sm:self-auto">
           AUDIT ENGINE ACTIVE
         </span>
       </div>
@@ -251,7 +251,7 @@ export function MatterReports() {
       />
 
       {/* 4 Executive KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <div
           onClick={() => setActiveReportTab('stalled')}
           className={`p-4 rounded-lg border cursor-pointer transition-all ${
@@ -327,7 +327,7 @@ export function MatterReports() {
 
       {/* Report View Tabs Navigation */}
       <div className="bg-white rounded-lg border border-[#D9D6CF] shadow-sm overflow-hidden">
-        <div className="flex border-b border-[#D9D6CF] bg-[#FAF8F5] px-4 pt-3 gap-2 overflow-x-auto">
+        <div className="flex flex-wrap items-center border-b border-[#D9D6CF] bg-[#FAF8F5] px-4 pt-3 gap-x-4 gap-y-1">
           {[
             { id: 'stalled', label: `Stalled Matters (${stalledMatters.length})`, icon: AlertTriangle },
             { id: 'missing-docs', label: `Missing Documents (${missingDocMatters.length})`, icon: FileCheck },
@@ -341,13 +341,13 @@ export function MatterReports() {
               <button
                 key={tab.id}
                 onClick={() => setActiveReportTab(tab.id)}
-                className={`pb-3 px-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
+                className={`pb-3 px-2.5 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all whitespace-nowrap ${
                   isActive
                     ? 'border-[#A4432B] text-[#A4432B]'
                     : 'border-transparent text-[#667085] hover:text-[#06244B]'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4 shrink-0" />
                 {tab.label}
               </button>
             );
@@ -357,9 +357,9 @@ export function MatterReports() {
         {/* Tab 1: Stalled Matters */}
         {activeReportTab === 'stalled' && (
           <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between text-xs text-[#667085]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#667085]">
               <span>Matters with no docket activity, filings, or task progress for more than 30 days:</span>
-              <span className="font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              <span className="font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200 whitespace-nowrap shrink-0 self-start sm:self-auto">
                 Action Required: Case Audit &amp; Supervisor Review
               </span>
             </div>
@@ -371,33 +371,33 @@ export function MatterReports() {
                     <th className="py-2.5 px-3">Matter Docket</th>
                     <th className="py-2.5 px-3">Practice Group</th>
                     <th className="py-2.5 px-3">Current Stage</th>
-                    <th className="py-2.5 px-3 text-center">Inactivity Duration</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Inactivity Duration</th>
                     <th className="py-2.5 px-3">Identified Bottleneck Reason</th>
-                    <th className="py-2.5 px-3">Lead Attorney</th>
-                    <th className="py-2.5 px-3 text-right">Escalation Action</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Lead Attorney</th>
+                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Escalation Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#D9D6CF]/60">
                   {stalledMatters.map(m => (
                     <tr key={m.id} className="hover:bg-amber-50/40">
-                      <td className="py-3 px-3 font-semibold text-[#06244B]">
-                        <span className="font-bold block">{m.matterNumber}</span>
-                        <span className="text-[11px] text-[#667085]">{m.title}</span>
+                      <td className="py-3 px-3 font-semibold text-[#06244B] min-w-[180px]">
+                        <span className="font-bold block whitespace-nowrap">{m.matterNumber}</span>
+                        <span className="text-[11px] text-[#667085] leading-snug block mt-0.5">{m.title}</span>
                       </td>
-                      <td className="py-3 px-3 text-[#202A35] font-medium">{m.practiceArea}</td>
+                      <td className="py-3 px-3 text-[#202A35] font-medium min-w-[140px]">{m.practiceArea}</td>
                       <td className="py-3 px-3">
-                        <span className="bg-[#F5F0E5] text-[#06244B] px-2 py-0.5 rounded font-semibold text-[11px] border border-[#D9D6CF]">
+                        <span className="inline-block whitespace-nowrap bg-[#F5F0E5] text-[#06244B] px-2 py-0.5 rounded font-semibold text-[11px] border border-[#D9D6CF]">
                           {m.currentStage}
                         </span>
                       </td>
                       <td className="py-3 px-3 text-center">
-                        <span className="font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded text-xs">
+                        <span className="inline-block whitespace-nowrap font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded text-xs">
                           {m.daysInactive} Days Inactive
                         </span>
-                        <span className="block text-[10px] text-[#667085] mt-0.5">Since {m.lastActivityDate}</span>
+                        <span className="block whitespace-nowrap text-[10px] text-[#667085] mt-1">Since {m.lastActivityDate}</span>
                       </td>
-                      <td className="py-3 px-3 text-[#202A35] max-w-xs">{m.stalledReason}</td>
-                      <td className="py-3 px-3 font-semibold text-[#06244B]">{m.leadAttorney}</td>
+                      <td className="py-3 px-3 text-[#202A35] min-w-[180px] max-w-xs">{m.stalledReason}</td>
+                      <td className="py-3 px-3 font-semibold text-[#06244B] whitespace-nowrap">{m.leadAttorney}</td>
                       <td className="py-3 px-3 text-right">
                         <Button
                           size="xs"
@@ -419,9 +419,9 @@ export function MatterReports() {
         {/* Tab 2: Missing Documents */}
         {activeReportTab === 'missing-docs' && (
           <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between text-xs text-[#667085]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#667085]">
               <span>Mandatory gatekeeper documents and statutory records missing from active client files:</span>
-              <span className="font-bold text-rose-900 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+              <span className="font-bold text-rose-900 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-200 whitespace-nowrap shrink-0 self-start sm:self-auto">
                 Non-Compliance Risk (RPC 1.3 / Court Order)
               </span>
             </div>
@@ -433,28 +433,28 @@ export function MatterReports() {
                     <th className="py-2.5 px-3">Matter Docket</th>
                     <th className="py-2.5 px-3">Missing Required Instrument</th>
                     <th className="py-2.5 px-3">Category</th>
-                    <th className="py-2.5 px-3 text-center">Days Pending</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Days Pending</th>
                     <th className="py-2.5 px-3">Severity &amp; Consequence</th>
-                    <th className="py-2.5 px-3">Responsible Staff</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Responsible Staff</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#D9D6CF]/60">
                   {missingDocMatters.map(d => (
                     <tr key={d.id} className="hover:bg-rose-50/40">
-                      <td className="py-3 px-3 font-semibold text-[#06244B]">
-                        <span className="font-bold block">{d.matterNumber}</span>
+                      <td className="py-3 px-3 font-semibold text-[#06244B] min-w-[160px]">
+                        <span className="font-bold block whitespace-nowrap">{d.matterNumber}</span>
                         <span className="text-[11px] text-[#667085]">{d.clientName}</span>
                       </td>
-                      <td className="py-3 px-3 font-bold text-rose-900 max-w-xs">{d.missingDocument}</td>
-                      <td className="py-3 px-3 text-[#202A35]">{d.category}</td>
+                      <td className="py-3 px-3 font-bold text-rose-900 min-w-[180px] max-w-xs">{d.missingDocument}</td>
+                      <td className="py-3 px-3 text-[#202A35] whitespace-nowrap">{d.category}</td>
                       <td className="py-3 px-3 text-center">
-                        <span className="font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
+                        <span className="inline-block whitespace-nowrap font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
                           {d.daysPending} days
                         </span>
                       </td>
-                      <td className="py-3 px-3 font-semibold text-rose-800 text-[11px]">{d.severity}</td>
-                      <td className="py-3 px-3 font-medium text-[#06244B]">{d.responsibleStaff}</td>
+                      <td className="py-3 px-3 font-semibold text-rose-800 text-[11px] min-w-[160px]">{d.severity}</td>
+                      <td className="py-3 px-3 font-medium text-[#06244B] whitespace-nowrap">{d.responsibleStaff}</td>
                       <td className="py-3 px-3 text-right">
                         <Button
                           size="xs"
@@ -476,9 +476,9 @@ export function MatterReports() {
         {/* Tab 3: Approaching Deadlines */}
         {activeReportTab === 'deadlines' && (
           <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between text-xs text-[#667085]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#667085]">
               <span>Court-mandated statutory cutoffs and jurisdictional deadlines due in the next 30 days:</span>
-              <span className="font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              <span className="font-bold text-blue-900 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 whitespace-nowrap shrink-0 self-start sm:self-auto">
                 Rule 6 Utah Civil Procedure Monitored
               </span>
             </div>
@@ -489,31 +489,31 @@ export function MatterReports() {
                   <tr>
                     <th className="py-2.5 px-3">Matter Docket</th>
                     <th className="py-2.5 px-3">Statutory Deadline &amp; Event</th>
-                    <th className="py-2.5 px-3">Rule Citation</th>
-                    <th className="py-2.5 px-3 text-center">Due Date</th>
-                    <th className="py-2.5 px-3 text-center">Days Remaining</th>
-                    <th className="py-2.5 px-3">Responsible Counsel</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Rule Citation</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Due Date</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Days Remaining</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Responsible Counsel</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#D9D6CF]/60">
                   {approachingDeadlines.map(cd => (
                     <tr key={cd.id} className="hover:bg-blue-50/40">
-                      <td className="py-3 px-3 font-semibold text-[#06244B]">
-                        <span className="font-bold block">{cd.matterNumber}</span>
+                      <td className="py-3 px-3 font-semibold text-[#06244B] min-w-[170px]">
+                        <span className="font-bold block whitespace-nowrap">{cd.matterNumber}</span>
                         <span className="text-[11px] text-[#667085]">{cd.matterTitle}</span>
                       </td>
-                      <td className="py-3 px-3 font-bold text-[#06244B] max-w-xs">{cd.deadlineTitle}</td>
-                      <td className="py-3 px-3 text-blue-900 font-semibold font-mono">{cd.ruleCitation}</td>
-                      <td className="py-3 px-3 text-center font-bold text-[#06244B]">{cd.dueDate}</td>
+                      <td className="py-3 px-3 font-bold text-[#06244B] min-w-[180px] max-w-xs">{cd.deadlineTitle}</td>
+                      <td className="py-3 px-3 text-blue-900 font-semibold font-mono whitespace-nowrap">{cd.ruleCitation}</td>
+                      <td className="py-3 px-3 text-center font-bold text-[#06244B] whitespace-nowrap">{cd.dueDate}</td>
                       <td className="py-3 px-3 text-center">
-                        <span className={`font-bold px-2 py-0.5 rounded text-xs ${
+                        <span className={`inline-block whitespace-nowrap font-bold px-2 py-0.5 rounded text-xs ${
                           cd.daysRemaining <= 10 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
                         }`}>
                           {cd.daysRemaining} Days Left
                         </span>
                       </td>
-                      <td className="py-3 px-3 font-semibold text-[#06244B]">{cd.responsibleCounsel}</td>
+                      <td className="py-3 px-3 font-semibold text-[#06244B] whitespace-nowrap">{cd.responsibleCounsel}</td>
                       <td className="py-3 px-3 text-right">
                         <Button
                           size="xs"
@@ -535,9 +535,9 @@ export function MatterReports() {
         {/* Tab 4: Overdue Work by Staff */}
         {activeReportTab === 'overdue' && (
           <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between text-xs text-[#667085]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#667085]">
               <span>Tasks past statutory or internal completion deadlines categorized by employee workload:</span>
-              <span className="font-bold text-rose-900 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+              <span className="font-bold text-rose-900 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-200 whitespace-nowrap shrink-0 self-start sm:self-auto">
                 Staff Workload Escalation Queue
               </span>
             </div>
@@ -548,23 +548,23 @@ export function MatterReports() {
                   <tr>
                     <th className="py-2.5 px-3">Overdue Task Description</th>
                     <th className="py-2.5 px-3">Linked Matter</th>
-                    <th className="py-2.5 px-3">Assigned Employee</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Assigned Employee</th>
                     <th className="py-2.5 px-3">Role</th>
-                    <th className="py-2.5 px-3 text-center">Original Due Date</th>
-                    <th className="py-2.5 px-3 text-center">Days Overdue</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Original Due Date</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Days Overdue</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#D9D6CF]/60">
                   {overdueTasks.map(t => (
                     <tr key={t.id} className="hover:bg-slate-50">
-                      <td className="py-3 px-3 font-bold text-rose-900 max-w-xs">{t.title}</td>
-                      <td className="py-3 px-3 text-[#202A35]">{t.matterTitle}</td>
-                      <td className="py-3 px-3 font-bold text-[#06244B]">{t.assignedTo}</td>
-                      <td className="py-3 px-3 text-[#667085]">{t.role}</td>
-                      <td className="py-3 px-3 text-center text-[#667085]">{t.dueDate}</td>
+                      <td className="py-3 px-3 font-bold text-rose-900 min-w-[180px] max-w-xs">{t.title}</td>
+                      <td className="py-3 px-3 text-[#202A35] min-w-[160px]">{t.matterTitle}</td>
+                      <td className="py-3 px-3 font-bold text-[#06244B] whitespace-nowrap">{t.assignedTo}</td>
+                      <td className="py-3 px-3 text-[#667085] whitespace-nowrap">{t.role}</td>
+                      <td className="py-3 px-3 text-center text-[#667085] whitespace-nowrap">{t.dueDate}</td>
                       <td className="py-3 px-3 text-center">
-                        <span className="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-xs">
+                        <span className="inline-block whitespace-nowrap bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-xs">
                           {t.daysOverdue} Days Late
                         </span>
                       </td>

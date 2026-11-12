@@ -193,11 +193,11 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
       label: 'Template Title & Scope',
       sortable: true,
       render: (val, row) => (
-        <div className="flex items-center gap-2">
-          <FileText className="w-4 h-4 text-[#A4432B] shrink-0" />
+        <div className="flex items-start gap-2 min-w-[220px]">
+          <FileText className="w-4 h-4 text-[#A4432B] shrink-0 mt-0.5" />
           <div>
-            <span className="font-semibold text-xs text-[#06244B] block">{val}</span>
-            <span className="text-[10px] text-[#667085]">{row.id} • {row.format}</span>
+            <span className="font-semibold text-xs text-[#06244B] block leading-snug">{val}</span>
+            <span className="text-[10px] text-[#667085] whitespace-nowrap">{row.id} • {row.format}</span>
           </div>
         </div>
       ),
@@ -207,7 +207,7 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
       label: 'Category',
       sortable: true,
       render: (val) => (
-        <span className="text-xs px-2 py-0.5 rounded bg-[#F5F0E5] text-[#06244B] border border-[#D9D6CF]">
+        <span className="inline-block whitespace-nowrap text-xs px-2 py-0.5 rounded bg-[#F5F0E5] text-[#06244B] border border-[#D9D6CF]">
           {val}
         </span>
       ),
@@ -216,13 +216,13 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
       key: 'practiceArea',
       label: 'Applicable Practice Area',
       sortable: true,
-      render: (val) => <span className="text-xs text-[#202A35] font-medium">{val}</span>,
+      render: (val) => <span className="text-xs text-[#202A35] font-medium block min-w-[140px]">{val}</span>,
     },
     {
       key: 'variables',
       label: 'Dynamic Tags',
       render: (val) => (
-        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">
+        <span className="inline-block whitespace-nowrap text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">
           {val?.length || 4} merge tags
         </span>
       ),
@@ -232,7 +232,7 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
       label: 'Actions',
       align: 'right',
       render: (_, row) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-2 whitespace-nowrap">
           <Button
             size="xs"
             variant="outline"
@@ -257,14 +257,14 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
   return (
     <div className="space-y-6">
       {/* Filevine Template Architecture Banner */}
-      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950">
+        <div className="flex items-start sm:items-center gap-2 min-w-0">
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 sm:mt-0" />
           <span>
             <strong>Smart Document Template Engine (Filevine Model):</strong> Dynamic document generation populated from matter data, repeating adversaries, and conditional clauses. Firm administrators can customize merge tags and clauses without code changes.
           </span>
         </div>
-        <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+        <span className="bg-emerald-200 text-emerald-900 font-bold px-2.5 py-0.5 rounded text-[10px] whitespace-nowrap shrink-0 self-start sm:self-auto">
           SMART MERGE ACTIVE
         </span>
       </div>

@@ -110,14 +110,14 @@ export function SettlementCalculator() {
   return (
     <div className="space-y-6">
       {/* Compliance Notice Banner */}
-      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950">
+        <div className="flex items-start sm:items-center gap-2 min-w-0">
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 sm:mt-0" />
           <span>
             <strong>Contingency Settlement Calculator (Utah Rule of Professional Conduct 1.5(c)):</strong> Automatic itemization of attorney fees, reimbursed litigation costs, and third-party healthcare subrogation liens. Produces client-ready closing statements.
           </span>
         </div>
-        <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+        <span className="bg-emerald-200 text-emerald-900 font-bold px-2.5 py-0.5 rounded text-[10px] whitespace-nowrap shrink-0 self-start sm:self-auto">
           RULE 1.5(c) COMPLIANT
         </span>
       </div>
@@ -152,15 +152,15 @@ export function SettlementCalculator() {
       />
 
       {/* Target Matter Selection */}
-      <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
           <label className="text-xs font-bold text-[#667085] uppercase block mb-1">
             Linked Legal Matter Docket
           </label>
           <select
             value={selectedMatterId}
             onChange={(e) => setSelectedMatterId(e.target.value)}
-            className="text-xs font-semibold text-[#06244B] border border-[#D9D6CF] rounded p-2 bg-slate-50 min-w-[320px]"
+            className="w-full text-xs font-semibold text-[#06244B] border border-[#D9D6CF] rounded p-2 bg-slate-50"
           >
             {matters.map(m => (
               <option key={m.id} value={m.id}>
@@ -170,20 +170,20 @@ export function SettlementCalculator() {
           </select>
         </div>
 
-        <div className="flex items-center gap-6 text-xs text-[#667085]">
+        <div className="flex flex-wrap items-center gap-6 shrink-0 text-xs text-[#667085] xl:border-l xl:border-[#EAECF0] xl:pl-6">
           <div>
             <span className="block text-[10px] uppercase font-bold text-[#667085]">Practice Group</span>
-            <span className="font-semibold text-[#06244B]">{selectedMatter?.practiceAreaName || 'Civil Litigation'}</span>
+            <span className="font-semibold text-[#06244B] whitespace-nowrap">{selectedMatter?.practiceAreaName || 'Civil Litigation'}</span>
           </div>
           <div>
             <span className="block text-[10px] uppercase font-bold text-[#667085]">Lead Counsel</span>
-            <span className="font-semibold text-[#06244B]">{selectedMatter?.responsibleAttorneyName || 'Thomas Bludworth, Esq.'}</span>
+            <span className="font-semibold text-[#06244B] whitespace-nowrap">{selectedMatter?.responsibleAttorneyName || 'Thomas Bludworth, Esq.'}</span>
           </div>
         </div>
       </div>
 
       {/* Primary Settlement Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">1. Gross Recovery</span>
           <span className="text-2xl font-bold font-serif text-[#06244B] mt-1 block">
@@ -289,7 +289,7 @@ export function SettlementCalculator() {
             </div>
 
             {/* Add Cost Form */}
-            <form onSubmit={handleAddCost} className="pt-2 flex gap-2">
+            <form onSubmit={handleAddCost} className="pt-2 flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Description (e.g. Expert Deposition Fee, Mediation Surcharge)"
@@ -302,7 +302,7 @@ export function SettlementCalculator() {
                 placeholder="Amount ($)"
                 value={newCostAmount}
                 onChange={(e) => setNewCostAmount(e.target.value)}
-                className="w-28 text-xs p-2 rounded border border-[#D9D6CF]"
+                className="w-full sm:w-28 text-xs p-2 rounded border border-[#D9D6CF]"
               />
               <Button size="sm" variant="outline" type="submit" icon={Plus}>
                 Add Cost
