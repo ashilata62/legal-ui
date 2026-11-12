@@ -88,58 +88,68 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Top Welcome Banner */}
-      <div className="bg-white p-6 rounded border border-[#D9D6CF] shadow-subtle flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#A4432B]">
-            <Scale className="w-4 h-4" />
+      <div className="bg-white p-5 sm:p-6 rounded-xl border border-[#EAECF0] shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#A4432B]/10 text-[#A4432B] border border-[#A4432B]/20 text-[10px] font-mono font-bold uppercase tracking-wider">
+            <Scale className="w-3.5 h-3.5 text-[#A4432B]" />
             <span>Utah Law Practice Management</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#06244B] mt-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#06244B] tracking-tight">
             Welcome back, {currentUser.name}
           </h1>
-          <p className="text-xs sm:text-sm text-[#667085] mt-1">
-            {currentUser.title} • {currentUser.department} • Today is {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[#475467] pt-0.5">
+            <span className="font-semibold text-[#101828]">{currentUser.title}</span>
+            <span className="text-[#98A2B3]">•</span>
+            <span className="text-[#667085]">{currentUser.department}</span>
+            <span className="text-[#98A2B3]">•</span>
+            <span className="inline-flex items-center gap-1 text-[#475467] bg-slate-50 px-2 py-0.5 rounded text-[11px] font-medium border border-slate-200">
+              <Calendar className="w-3 h-3 text-[#667085]" />
+              Today is {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
             onClick={() => setIsDemoWizardOpen(true)}
-            className="border-[#A4432B] text-[#A4432B] hover:bg-[#A4432B]/10 font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-[#A4432B] bg-orange-50/70 border border-orange-200 hover:bg-orange-100/80 hover:border-orange-300 transition-all shadow-2xs cursor-pointer whitespace-nowrap"
+            title="Launch End-to-End Onboarding Demo"
           >
-            <Sparkles className="w-3.5 h-3.5 mr-1" />
-            E2E Onboarding Demo
-          </Button>
+            <Sparkles className="w-3.5 h-3.5 text-[#A4432B]" />
+            <span>E2E Onboarding Demo</span>
+          </button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            icon={UserPlus}
+          <button
+            type="button"
             onClick={() => setIsClientModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-[#344054] bg-white border border-[#D0D5DD] hover:bg-slate-50 hover:text-[#06244B] transition-all shadow-2xs cursor-pointer whitespace-nowrap"
+            title="Create New Client Profile"
           >
-            Add Client
-          </Button>
+            <UserPlus className="w-3.5 h-3.5 text-[#667085]" />
+            <span>Add Client</span>
+          </button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            icon={FolderPlus}
+          <button
+            type="button"
             onClick={() => setIsMatterModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-[#344054] bg-white border border-[#D0D5DD] hover:bg-slate-50 hover:text-[#06244B] transition-all shadow-2xs cursor-pointer whitespace-nowrap"
+            title="Open New Legal Matter"
           >
-            New Matter
-          </Button>
+            <FolderPlus className="w-3.5 h-3.5 text-[#667085]" />
+            <span>New Matter</span>
+          </button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            icon={Clock}
+          <button
+            type="button"
             onClick={() => setIsTimeModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold text-white bg-[#A4432B] hover:bg-[#8D3823] transition-all shadow-sm cursor-pointer whitespace-nowrap"
+            title="Log Billable Time"
           >
-            Log Time
-          </Button>
+            <Clock className="w-3.5 h-3.5 text-white" />
+            <span>Log Time</span>
+          </button>
         </div>
       </div>
 

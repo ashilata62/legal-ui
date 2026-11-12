@@ -15,7 +15,8 @@ import {
   X,
   CheckCircle2,
   ExternalLink,
-  Flame
+  Flame,
+  RotateCcw
 } from 'lucide-react';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { DataTable } from '../../../components/ui/DataTable';
@@ -318,33 +319,52 @@ export function BankruptcyCasesList() {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by case #, debtor, or trustee..."
-        />
-        <div className="md:col-span-2">
-          <FilterBar
-            filters={[
-              {
-                id: 'chapter',
-                label: 'Chapter',
-                value: chapterFilter,
-                options: [
-                  { value: 'Chapter 7', label: 'Chapter 7' },
-                  { value: 'Chapter 13', label: 'Chapter 13' },
-                  { value: 'Chapter 11', label: 'Chapter 11' },
-                ],
-                onChange: setChapterFilter,
-              },
-            ]}
-            onReset={() => {
-              setSearchQuery('');
-              setChapterFilter('');
-            }}
+      {/* Unified Executive Search & Filter Toolbar */}
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#EAECF0] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative w-full lg:max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-[#98A2B3]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by case #, debtor, or trustee..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#F9FAFB] border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] focus:bg-white transition-all"
           />
+        </div>
+
+        {/* Filter Dropdowns & Reset */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#475467] mr-1">
+            <Filter className="w-3.5 h-3.5 text-[#A4432B]" />
+            <span className="uppercase text-[10px] tracking-wider font-mono">Filters:</span>
+          </div>
+
+          <select
+            value={chapterFilter}
+            onChange={(e) => setChapterFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Chapter: All</option>
+            <option value="Chapter 7">Chapter 7</option>
+            <option value="Chapter 13">Chapter 13</option>
+            <option value="Chapter 11">Chapter 11</option>
+          </select>
+
+          {(searchQuery || chapterFilter) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setChapterFilter('');
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              title="Clear all filters and search"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
 
