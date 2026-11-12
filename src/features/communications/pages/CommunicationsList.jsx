@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MessageSquare, Plus, Search, Filter, Calendar, User, Send, Paperclip, Smartphone } from 'lucide-react';
+import { Mail, Phone, MessageSquare, Plus, Smartphone, Inbox } from 'lucide-react';
 import { useClients } from '../../../context/ClientContext';
 import { useMatters } from '../../../context/MatterContext';
 import { useAuth } from '../../../hooks/useAuth';
@@ -8,12 +8,20 @@ import { PageHeader } from '../../../components/shared/PageHeader';
 import { DataTable } from '../../../components/ui/DataTable';
 import { Button } from '../../../components/ui/Button';
 import { SearchBar } from '../../../components/shared/SearchBar';
+import { Tabs } from '../../../components/ui/Tabs';
 import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { formatDate } from '../../../utils/formatDate';
 import { OutlookMailBridgeModal } from '../components/OutlookMailBridgeModal';
 import { TextMessageThreadModal } from '../components/TextMessageThreadModal';
+import {
+  INITIAL_UNMATCHED_EMAILS,
+  INITIAL_UNMATCHED_MESSAGES,
+} from '../../../data/mockUnmatchedCommunications';
+import {
+  AppleSyncLimitationsPanel,
+  UnmatchedCommunicationsQueue,
+} from '../components/UnmatchedCommunicationsQueue';
 
 export function CommunicationsList() {
   const { clients } = useClients();
@@ -68,11 +76,126 @@ export function CommunicationsList() {
     }
   ]);
 
+  const [activeTab, setActiveTab] = useState('filed');
+  const [unmatchedEmails, setUnmatchedEmails] = useState(INITIAL_UNMATCHED_EMAILS);
+  const [unmatchedMessages, setUnmatchedMessages] = useState(INITIAL_UNMATCHED_MESSAGES);
   const [searchQuery, setSearchQuery] = useState('');
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [isOutlookOpen, setIsOutlookOpen] = useState(false);
   const [isSmsOpen, setIsSmsOpen] = useState(false);
   const [selectedComm, setSelectedComm] = useState(null);
+
+  const handleMatchEmailToClient = (id, client) => {
+    setUnmatchedEmails((prev) =>
+      prev.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              matchedClientName: client.name,
+              matchingStatus: e.matchedMatterLabel ? 'Matched' : 'Reviewed',
+            }
+          : e
+      )
+    );
+    addToast(`Email matched to client "${client.name}".`, 'success');
+  };
+
+  const handleMatchEmailToMatter = (id, matter, alsoFile) => {
+    const matchedItem = unmatchedEmails.find((e) => e.id === id);
+    const matterLabel = `${matter.matterNumber} — ${matter.title}`;
+    setUnmatchedEmails((prev) =>
+      prev.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              matchedClientName: matter.clientName,
+              matchedMatterLabel: matterLabel,
+              matchingStatus: 'Matched',
+            }
+          : e
+      )
+    );
+    if (alsoFile && matchedItem) {
+      setCommunications((prev) => [
+        {
+          id: `COMM-${prev.length + 101}`,
+          type: 'Email',
+          subject: matchedItem.subject,
+          sender: `${matchedItem.senderName} <${matchedItem.senderEmail}>`,
+          recipient: currentUser?.name || 'Attorney of Record',
+          clientName: matter.clientName,
+          matterTitle: matter.title,
+          date: matchedItem.receivedDate,
+          summary: matchedItem.fullBody || matchedItem.preview,
+        },
+        ...prev,
+      ]);
+    }
+    addToast(`Email matched to matter "${matter.matterNumber}"${alsoFile ? ' and filed to log' : ''}.`, 'success');
+  };
+
+  const handleMarkEmailReviewed = (id) => {
+    setUnmatchedEmails((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, matchingStatus: 'Reviewed' } : e))
+    );
+    addToast('Unmatched email marked as Reviewed.', 'info');
+  };
+
+  const handleMatchMessageToClient = (id, client) => {
+    setUnmatchedMessages((prev) =>
+      prev.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              matchedClientName: client.name,
+              matchingStatus: m.matchedMatterLabel ? 'Matched' : 'Reviewed',
+            }
+          : m
+      )
+    );
+    addToast(`Message matched to client "${client.name}".`, 'success');
+  };
+
+  const handleMatchMessageToMatter = (id, matter, alsoFile) => {
+    const matchedItem = unmatchedMessages.find((m) => m.id === id);
+    const matterLabel = `${matter.matterNumber} — ${matter.title}`;
+    setUnmatchedMessages((prev) =>
+      prev.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              matchedClientName: matter.clientName,
+              matchedMatterLabel: matterLabel,
+              matchingStatus: 'Matched',
+            }
+          : m
+      )
+    );
+    if (alsoFile && matchedItem) {
+      setCommunications((prev) => [
+        {
+          id: `COMM-${prev.length + 101}`,
+          type: 'Mobile Message',
+          subject: `Message from ${matchedItem.senderName} (${matchedItem.contactNumber})`,
+          sender: `${matchedItem.senderName} (${matchedItem.contactNumber})`,
+          recipient: currentUser?.name || 'Firm Staff',
+          clientName: matter.clientName,
+          matterTitle: matter.title,
+          date: matchedItem.receivedDate,
+          summary: matchedItem.fullMessage || matchedItem.preview,
+        },
+        ...prev,
+      ]);
+    }
+    addToast(`Message matched to matter "${matter.matterNumber}"${alsoFile ? ' and filed to log' : ''}.`, 'success');
+  };
+
+  const handleMarkMessageReviewed = (id) => {
+    setUnmatchedMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, matchingStatus: 'Reviewed' } : m))
+    );
+    addToast('Unmatched message marked as Reviewed.', 'info');
+  };
 
   // Compose State
   const [newSubject, setNewSubject] = useState('');
@@ -120,7 +243,13 @@ export function CommunicationsList() {
       render: (val, row) => (
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded bg-[#F5F0E5] text-[#06244B]">
-            {row.type === 'Email' ? <Mail className="w-4 h-4 text-[#A4432B]" /> : <Phone className="w-4 h-4 text-[#06244B]" />}
+            {row.type === 'Email' ? (
+              <Mail className="w-4 h-4 text-[#A4432B]" />
+            ) : row.type === 'Mobile Message' ? (
+              <MessageSquare className="w-4 h-4 text-[#06244B]" />
+            ) : (
+              <Phone className="w-4 h-4 text-[#06244B]" />
+            )}
           </div>
           <div>
             <span
@@ -202,19 +331,71 @@ export function CommunicationsList() {
         }
       />
 
-      <div className="max-w-md">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search communications, subjects, or recipients..."
-        />
-      </div>
+      {/* C. Apple iPhone / Messages Sync Limitations Informational Panel */}
+      <AppleSyncLimitationsPanel />
 
-      <DataTable
-        columns={columns}
-        data={communications.filter(c => c.subject.toLowerCase().includes(searchQuery.toLowerCase()) || c.clientName.toLowerCase().includes(searchQuery.toLowerCase()))}
-        pageSize={8}
+      {/* Communications Section Tabs */}
+      <Tabs
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: 'filed', label: 'Filed Communications', icon: Inbox, count: communications.length },
+          {
+            id: 'unmatchedEmails',
+            label: 'Unmatched Email Queue',
+            icon: Mail,
+            count: unmatchedEmails.filter((e) => e.matchingStatus === 'Unmatched').length,
+          },
+          {
+            id: 'unmatchedMessages',
+            label: 'Unmatched Message Queue',
+            icon: MessageSquare,
+            count: unmatchedMessages.filter((m) => m.matchingStatus === 'Unmatched').length,
+          },
+        ]}
       />
+
+      {activeTab === 'filed' && (
+        <div className="space-y-4">
+          <div className="max-w-md">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search communications, subjects, or recipients..."
+            />
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={communications.filter(c => c.subject.toLowerCase().includes(searchQuery.toLowerCase()) || c.clientName.toLowerCase().includes(searchQuery.toLowerCase()))}
+            pageSize={8}
+          />
+        </div>
+      )}
+
+      {activeTab === 'unmatchedEmails' && (
+        <UnmatchedCommunicationsQueue
+          mode="email"
+          items={unmatchedEmails}
+          clients={clients}
+          matters={matters}
+          onMatchToClient={handleMatchEmailToClient}
+          onMatchToMatter={handleMatchEmailToMatter}
+          onMarkReviewed={handleMarkEmailReviewed}
+        />
+      )}
+
+      {activeTab === 'unmatchedMessages' && (
+        <UnmatchedCommunicationsQueue
+          mode="message"
+          items={unmatchedMessages}
+          clients={clients}
+          matters={matters}
+          onMatchToClient={handleMatchMessageToClient}
+          onMatchToMatter={handleMatchMessageToMatter}
+          onMarkReviewed={handleMarkMessageReviewed}
+        />
+      )}
 
       {/* Compose / Log Modal */}
       <Modal

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Sparkles,
   Clock,
@@ -15,7 +15,8 @@ import {
   AlertTriangle,
   X,
   Edit2,
-  Info
+  Info,
+  ShieldAlert
 } from 'lucide-react';
 import { useTime } from '../../../context/TimeContext';
 import { useAuth } from '../../../hooks/useAuth';
@@ -24,11 +25,16 @@ import { useToast } from '../../../components/ui/Toast';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
+import { Tabs } from '../../../components/ui/Tabs';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { INITIAL_UNCERTAIN_SUGGESTIONS } from '../../../data/mockTimeReviewSchedules';
+import { ScheduledReviewSlots } from '../components/ScheduledReviewSlots';
+import { UncertainQueuePanel } from '../components/UncertainQueuePanel';
 import { formatHours, formatCurrency } from '../../../utils/formatCurrency';
 import { formatDate } from '../../../utils/formatDate';
 
 export function SuggestedBilling() {
-  const { addTimeEntry } = useTime();
+  const { addTimeEntry, reviewSlots, markSlotReviewed } = useTime();
   const { currentUser } = useAuth();
   const { matters } = useMatters();
   const { addToast } = useToast();
@@ -36,6 +42,7 @@ export function SuggestedBilling() {
   const [suggestions, setSuggestions] = useState([
     {
       id: 'SUG-01',
+      slotId: 'slot-noon',
       sourceType: 'Outlook Email',
       sourceIcon: Mail,
       sourceIdentifier: 'MSG-ID: <20261105.1420.outbound@wasatchlogistics.com>',
@@ -55,6 +62,7 @@ export function SuggestedBilling() {
     },
     {
       id: 'SUG-02',
+      slotId: 'slot-4pm',
       sourceType: 'Telephone Call',
       sourceIcon: Phone,
       sourceIdentifier: 'VOIP-CALL-REC #88192 (Direct Inward Dialing)',
@@ -74,6 +82,7 @@ export function SuggestedBilling() {
     },
     {
       id: 'SUG-03',
+      slotId: 'slot-6pm',
       sourceType: 'Word Document',
       sourceIcon: FileText,
       sourceIdentifier: 'WIN-DOC-AUDIT: Reply_Brief_Recharge_Easements_v3.docx',
@@ -93,6 +102,7 @@ export function SuggestedBilling() {
     },
     {
       id: 'SUG-04',
+      slotId: 'slot-9pm',
       sourceType: 'VoIP SMS Thread',
       sourceIcon: MessageSquare,
       sourceIdentifier: 'TWILIO-SMS-SID: SM88192001a1',
@@ -112,10 +122,73 @@ export function SuggestedBilling() {
     }
   ]);
 
-  // Modal states
+  // Modal states & Phase 4 Queue states
+  const [activeTab, setActiveTab] = useState('uncertain');
+  const [activeSlotId, setActiveSlotId] = useState('');
+  const [uncertainItems, setUncertainItems] = useState(INITIAL_UNCERTAIN_SUGGESTIONS);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [reassigningItem, setReassigningItem] = useState(null);
   const [newSelectedMatterId, setNewSelectedMatterId] = useState('');
+
+  const handleMarkUncertainReviewed = (id, note) => {
+    setUncertainItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              reviewStatus: 'Reviewed',
+              reviewNote: note !== undefined ? note : item.reviewNote,
+            }
+          : item
+      )
+    );
+    addToast('Uncertain entry marked as Reviewed. Still requires explicit Approval before billing.', 'info');
+  };
+
+  const handleApproveUncertainConfirmed = (item) => {
+    addTimeEntry({
+      userId: currentUser.id,
+      userName: currentUser.name,
+      clientId: item.clientId || 'CLI-1001',
+      clientName: item.clientName,
+      matterId: item.matterId || 'MAT-2025-0101',
+      matterTitle: item.matterTitle,
+      date: item.date,
+      hours: item.suggestedHours,
+      rate: item.detectedRate,
+      amount: item.suggestedHours * item.detectedRate,
+      description: `${item.description} [Manual Review Approved from ${item.sourceType}]`,
+      isBillable: true,
+      status: 'Submitted',
+    });
+    setUncertainItems((prev) =>
+      prev.map((entry) =>
+        entry.id === item.id
+          ? { ...entry, reviewStatus: 'Approved', reviewNote: item.reviewNote || entry.reviewNote }
+          : entry
+      )
+    );
+    addToast(
+      `Confirmed & posted ${item.suggestedHours} hrs (${formatCurrency(item.suggestedHours * item.detectedRate)}) to Time Tracking!`,
+      'success'
+    );
+  };
+
+  const handleRejectUncertainConfirmed = (id, reason) => {
+    setUncertainItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, reviewStatus: 'Rejected', reviewNote: reason } : item
+      )
+    );
+    addToast('Uncertain suggestion rejected and excluded from billing.', 'info');
+  };
+
+  const handleEditUncertainSaved = (id, updates) => {
+    setUncertainItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+    addToast('Uncertain billing suggestion updated.', 'success');
+  };
 
   const handleConvert = (sug) => {
     addTimeEntry({
@@ -179,7 +252,34 @@ export function SuggestedBilling() {
     );
   };
 
-  const activeSuggestions = suggestions.filter(s => !s.dismissed);
+  const activeSuggestions = suggestions.filter(
+    (s) => !s.dismissed && (!activeSlotId || s.slotId === activeSlotId)
+  );
+
+  const pendingUncertainCount = uncertainItems.filter(
+    (u) => u.reviewStatus === 'Pending' || u.reviewStatus === 'Reviewed'
+  ).length;
+
+  const pendingCountBySlot = useMemo(() => {
+    const counts = {};
+    reviewSlots.forEach((slot) => {
+      const regPending = suggestions.filter(
+        (s) => !s.dismissed && !s.converted && s.slotId === slot.id
+      ).length;
+      const uncPending = uncertainItems.filter(
+        (u) =>
+          u.slotId === slot.id &&
+          (u.reviewStatus === 'Pending' || u.reviewStatus === 'Reviewed')
+      ).length;
+      counts[slot.id] = regPending + uncPending;
+    });
+    return counts;
+  }, [reviewSlots, suggestions, uncertainItems]);
+
+  const handleViewSlotQueue = (slot) => {
+    setActiveSlotId((prev) => (prev === slot.id ? '' : slot.id));
+    addToast(`Filtered Suggested Billing queue to ${slot.scheduledTime}.`, 'info');
+  };
 
   return (
     <div className="space-y-6">
@@ -226,7 +326,54 @@ export function SuggestedBilling() {
         }
       />
 
+      {/* A. Scheduled Review Slots (Mountain Time) */}
+      <ScheduledReviewSlots
+        slots={reviewSlots}
+        pendingCountBySlot={pendingCountBySlot}
+        activeSlotId={activeSlotId}
+        onViewQueue={handleViewSlotQueue}
+        onClearSlot={() => setActiveSlotId('')}
+        onMarkSlotReviewed={(slot) => {
+          markSlotReviewed(slot.id);
+          addToast(`${slot.scheduledTime} marked as reviewed.`, 'success');
+        }}
+      />
+
+      {/* Queue Tabs */}
+      <Tabs
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          {
+            id: 'uncertain',
+            label: 'Uncertain / Unmatched Queue',
+            icon: ShieldAlert,
+            count: pendingUncertainCount,
+          },
+          {
+            id: 'detected',
+            label: 'Detected Activity Queue',
+            icon: Sparkles,
+            count: activeSuggestions.filter((s) => !s.converted).length,
+          },
+        ]}
+      />
+
+      {/* B. Uncertain / Unmatched Queue */}
+      {activeTab === 'uncertain' && (
+        <UncertainQueuePanel
+          items={uncertainItems}
+          matters={matters}
+          activeSlotId={activeSlotId}
+          onMarkReviewed={handleMarkUncertainReviewed}
+          onApproveConfirmed={handleApproveUncertainConfirmed}
+          onRejectConfirmed={handleRejectUncertainConfirmed}
+          onEditSaved={handleEditUncertainSaved}
+        />
+      )}
+
       {/* Main Suggestions Table Card */}
+      {activeTab === 'detected' && (
       <div className="bg-white rounded-lg border border-[#D9D6CF] shadow-sm overflow-hidden">
         <div className="p-4 border-b border-[#D9D6CF] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
@@ -371,8 +518,18 @@ export function SuggestedBilling() {
               })}
             </tbody>
           </table>
+          {activeSuggestions.length === 0 && (
+            <div className="p-4">
+              <EmptyState
+                icon={Sparkles}
+                title="No Detected Activities for Selected Slot"
+                description="All detected activities for this Mountain Time review slot have been reviewed or dismissed."
+              />
+            </div>
+          )}
         </div>
       </div>
+      )}
 
       {/* Technical Proposal Modal for Calls & SMS Capture (Requirement 6 Deliverable) */}
       <Modal

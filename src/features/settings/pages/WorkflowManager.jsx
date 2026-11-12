@@ -1,24 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Layers,
   Plus,
   CheckCircle2,
   Trash2,
-  Edit,
   Save,
   RotateCcw,
   ShieldCheck,
-  ArrowRight,
   Clock,
-  Sparkles,
   FileCheck,
-  AlertTriangle,
-  ChevronDown
+  GitBranch,
+  GitMerge,
+  BellRing,
+  History,
 } from 'lucide-react';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { Button } from '../../../components/ui/Button';
+import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { PRACTICE_AREA_WORKFLOWS } from '../../../data/practiceAreaWorkflows';
+import { buildInitialWorkflowEnhancements } from '../../../data/mockWorkflowEnhancements';
+import {
+  ConditionalBranchesPanel,
+  ParallelTasksPanel,
+  EscalationRulesPanel,
+  WorkflowVersionControlPanel,
+} from '../components/WorkflowEnhancementsPanels';
 
 export function WorkflowManager() {
   const { addToast } = useToast();
@@ -26,6 +33,10 @@ export function WorkflowManager() {
   const practiceAreaNames = Object.keys(PRACTICE_AREA_WORKFLOWS);
   const [selectedPracticeArea, setSelectedPracticeArea] = useState(practiceAreaNames[0]);
   const [workflows, setWorkflows] = useState(PRACTICE_AREA_WORKFLOWS);
+  const [activeTab, setActiveTab] = useState('stages');
+  const [enhancementsByArea, setEnhancementsByArea] = useState(() =>
+    buildInitialWorkflowEnhancements(practiceAreaNames)
+  );
 
   const currentStages = workflows[selectedPracticeArea] || [];
   const [selectedStageId, setSelectedStageId] = useState(currentStages[0]?.id || '');
@@ -128,6 +139,143 @@ export function WorkflowManager() {
     addToast('Automated task rule removed.', 'info');
   };
 
+  const currentEnhancements = useMemo(
+    () =>
+      enhancementsByArea[selectedPracticeArea] || {
+        branches: [],
+        parallelTasks: [],
+        escalations: [],
+        versions: [],
+      },
+    [enhancementsByArea, selectedPracticeArea]
+  );
+
+  const handleToggleBranchActive = (branchId) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      if (!areaData) return prev;
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          branches: areaData.branches.map((b) =>
+            b.id === branchId ? { ...b, isActive: !b.isActive } : b
+          ),
+        },
+      };
+    });
+    addToast('Conditional branch routing state updated.', 'info');
+  };
+
+  const handleAddBranch = (newBranch) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          branches: [
+            { id: `BR-${Date.now().toString().slice(-4)}`, ...newBranch },
+            ...(areaData?.branches || []),
+          ],
+        },
+      };
+    });
+    addToast('Conditional workflow branch added.', 'success');
+  };
+
+  const handleCycleParallelTaskStatus = (taskId) => {
+    const nextMap = {
+      Pending: 'In Progress',
+      'In Progress': 'Completed',
+      Completed: 'Pending',
+    };
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          parallelTasks: areaData.parallelTasks.map((t) =>
+            t.id === taskId ? { ...t, status: nextMap[t.status] || 'Pending' } : t
+          ),
+        },
+      };
+    });
+    addToast('Parallel task status updated.', 'info');
+  };
+
+  const handleAddParallelTask = (newTask) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          parallelTasks: [
+            ...(areaData?.parallelTasks || []),
+            { id: `PT-${Date.now().toString().slice(-4)}`, ...newTask },
+          ],
+        },
+      };
+    });
+    addToast('Parallel workflow task added.', 'success');
+  };
+
+  const handleUpdateEscalationStatus = (ruleId, nextStatus) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          escalations: areaData.escalations.map((r) =>
+            r.id === ruleId ? { ...r, status: nextStatus } : r
+          ),
+        },
+      };
+    });
+    addToast(`Escalation rule status updated to ${nextStatus}.`, nextStatus === 'Escalated' ? 'warning' : 'success');
+  };
+
+  const handleAddEscalation = (newRule) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          escalations: [
+            ...(areaData?.escalations || []),
+            { id: `ESC-${Date.now().toString().slice(-4)}`, ...newRule },
+          ],
+        },
+      };
+    });
+    addToast('Escalation rule added.', 'success');
+  };
+
+  const handleRestoreVersion = (versionId) => {
+    setEnhancementsByArea((prev) => {
+      const areaData = prev[selectedPracticeArea];
+      return {
+        ...prev,
+        [selectedPracticeArea]: {
+          ...areaData,
+          versions: areaData.versions.map((v) => ({
+            ...v,
+            status: v.id === versionId ? 'Current' : 'Previous',
+          })),
+        },
+      };
+    });
+    const restored = currentEnhancements.versions.find((v) => v.id === versionId);
+    addToast(
+      `Workflow schema restored to ${restored?.versionNumber || 'selected version'} (Demo UI).`,
+      'success'
+    );
+  };
+
   const handleSaveAll = () => {
     addToast(
       `Firm administrative workflow schema for "${selectedPracticeArea}" successfully saved to database!`,
@@ -137,7 +285,8 @@ export function WorkflowManager() {
 
   const handleResetDefault = () => {
     setWorkflows(PRACTICE_AREA_WORKFLOWS);
-    addToast('Workflow stages reset to Utah State Bar standard practice defaults.', 'info');
+    setEnhancementsByArea(buildInitialWorkflowEnhancements(practiceAreaNames));
+    addToast('Workflow stages, branches, and rules reset to practice defaults.', 'info');
   };
 
   return (
@@ -210,7 +359,21 @@ export function WorkflowManager() {
         </div>
       </div>
 
-      {/* Main Configuration Studio */}
+      {/* Workflow Feature Tabs */}
+      <Tabs
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: 'stages', label: 'Stages & Gatekeepers', icon: Layers, count: currentStages.length },
+          { id: 'branches', label: 'Conditional Branches', icon: GitBranch, count: currentEnhancements.branches.length },
+          { id: 'parallel', label: 'Parallel Tasks', icon: GitMerge, count: currentEnhancements.parallelTasks.length },
+          { id: 'escalations', label: 'Escalation Rules', icon: BellRing, count: currentEnhancements.escalations.length },
+          { id: 'versions', label: 'Version Control', icon: History, count: currentEnhancements.versions.length },
+        ]}
+      />
+
+      {/* Tab 1: Main Configuration Studio */}
+      {activeTab === 'stages' && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Stage Sequence Stepper */}
         <div className="bg-white p-5 rounded-lg border border-[#D9D6CF] shadow-sm space-y-4">
@@ -395,6 +558,47 @@ export function WorkflowManager() {
           </div>
         )}
       </div>
+      )}
+
+      {/* Tab 2: Conditional Branches */}
+      {activeTab === 'branches' && (
+        <ConditionalBranchesPanel
+          selectedPracticeArea={selectedPracticeArea}
+          stages={currentStages}
+          branches={currentEnhancements.branches}
+          onToggleBranchActive={handleToggleBranchActive}
+          onAddBranch={handleAddBranch}
+        />
+      )}
+
+      {/* Tab 3: Parallel Tasks */}
+      {activeTab === 'parallel' && (
+        <ParallelTasksPanel
+          selectedPracticeArea={selectedPracticeArea}
+          parallelTasks={currentEnhancements.parallelTasks}
+          onCycleTaskStatus={handleCycleParallelTaskStatus}
+          onAddParallelTask={handleAddParallelTask}
+        />
+      )}
+
+      {/* Tab 4: Escalation Rules */}
+      {activeTab === 'escalations' && (
+        <EscalationRulesPanel
+          selectedPracticeArea={selectedPracticeArea}
+          escalations={currentEnhancements.escalations}
+          onUpdateEscalationStatus={handleUpdateEscalationStatus}
+          onAddEscalation={handleAddEscalation}
+        />
+      )}
+
+      {/* Tab 5: Workflow Version Control */}
+      {activeTab === 'versions' && (
+        <WorkflowVersionControlPanel
+          selectedPracticeArea={selectedPracticeArea}
+          versions={currentEnhancements.versions}
+          onRestoreVersion={handleRestoreVersion}
+        />
+      )}
     </div>
   );
 }

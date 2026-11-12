@@ -11,8 +11,8 @@ export function PageHeader({
   return (
     <div className={`mb-6 pb-4 border-b border-[#D9D6CF]/60 ${className}`}>
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} className="mb-2" />}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-wrap items-start sm:items-center justify-between gap-4">
+        <div className="min-w-[260px] flex-1">
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#06244B] tracking-tight">
             {title}
           </h1>
@@ -23,7 +23,7 @@ export function PageHeader({
           )}
         </div>
         {actions && (
-          <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 max-w-full">
             {actions}
           </div>
         )}

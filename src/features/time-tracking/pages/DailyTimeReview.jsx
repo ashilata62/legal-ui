@@ -1,22 +1,75 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, User, Clock, AlertCircle, CheckCircle2, ChevronRight, FileSpreadsheet } from 'lucide-react';
+import { Calendar, TimerOff, Copy, FileSpreadsheet } from 'lucide-react';
 import { useTime } from '../../../context/TimeContext';
 import { useAuth } from '../../../hooks/useAuth';
-import { useMatters } from '../../../context/MatterContext';
+import { useToast } from '../../../components/ui/Toast';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
-import { Button } from '../../../components/ui/Button';
+import { Tabs } from '../../../components/ui/Tabs';
 import { FilterBar } from '../../../components/shared/FilterBar';
+import { INITIAL_IDLE_FLAGS, INITIAL_OVERLAP_FLAGS } from '../../../data/mockTimeReviewSchedules';
+import { ScheduledReviewSlots } from '../components/ScheduledReviewSlots';
+import { TimeReviewFlagsPanel } from '../components/TimeReviewFlagsPanel';
 import { formatDate } from '../../../utils/formatDate';
 import { formatHours, formatCurrency } from '../../../utils/formatCurrency';
 
 export function DailyTimeReview() {
-  const { timeEntries } = useTime();
+  const { timeEntries, reviewSlots, markSlotReviewed } = useTime();
   const { allUsers } = useAuth();
-  const { matters } = useMatters();
+  const { addToast } = useToast();
 
+  const [activeTab, setActiveTab] = useState('idle');
+  const [activeSlotId, setActiveSlotId] = useState('');
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+
+  const [idleFlags, setIdleFlags] = useState(INITIAL_IDLE_FLAGS);
+  const [overlapFlags, setOverlapFlags] = useState(INITIAL_OVERLAP_FLAGS);
+
+  const handleUpdateIdleFlagStatus = (flagId, status, reviewNote) => {
+    setIdleFlags((prev) =>
+      prev.map((f) =>
+        f.id === flagId
+          ? { ...f, status, reviewNote: reviewNote !== undefined ? reviewNote : f.reviewNote }
+          : f
+      )
+    );
+    addToast(`Idle flag ${flagId} updated to ${status}.`, status === 'Rejected' ? 'info' : 'success');
+  };
+
+  const handleUpdateOverlapFlagStatus = (flagId, status, reviewNote) => {
+    setOverlapFlags((prev) =>
+      prev.map((f) =>
+        f.id === flagId
+          ? { ...f, status, reviewNote: reviewNote !== undefined ? reviewNote : f.reviewNote }
+          : f
+      )
+    );
+    addToast(`Overlap flag ${flagId} updated to ${status}.`, status === 'Rejected' ? 'info' : 'success');
+  };
+
+  const pendingIdleCount = idleFlags.filter((f) => f.status === 'Pending' || f.status === 'Reviewed').length;
+  const pendingOverlapCount = overlapFlags.filter((f) => f.status === 'Pending' || f.status === 'Reviewed').length;
+
+  const pendingCountBySlot = useMemo(() => {
+    const counts = {};
+    reviewSlots.forEach((slot) => {
+      const idlePending = idleFlags.filter(
+        (f) => f.slotId === slot.id && (f.status === 'Pending' || f.status === 'Reviewed')
+      ).length;
+      const overlapPending = overlapFlags.filter(
+        (f) => f.slotId === slot.id && (f.status === 'Pending' || f.status === 'Reviewed')
+      ).length;
+      counts[slot.id] = idlePending + overlapPending;
+    });
+    return counts;
+  }, [reviewSlots, idleFlags, overlapFlags]);
+
+  const handleViewSlotQueue = (slot) => {
+    setActiveSlotId((prev) => (prev === slot.id ? '' : slot.id));
+    if (activeTab === 'daily') setActiveTab('idle');
+    addToast(`Filtered Daily Time Review flags to ${slot.scheduledTime}.`, 'info');
+  };
 
   // Group entries by date
   const groupedEntries = useMemo(() => {
@@ -46,6 +99,53 @@ export function DailyTimeReview() {
         breadcrumbs={[{ label: 'Tasks & Activities', to: '/tasks' }, { label: 'Daily Review' }]}
       />
 
+      {/* D. Scheduled Review Slots (Shared with Suggested Billing) */}
+      <ScheduledReviewSlots
+        slots={reviewSlots}
+        pendingCountBySlot={pendingCountBySlot}
+        activeSlotId={activeSlotId}
+        onViewQueue={handleViewSlotQueue}
+        onClearSlot={() => setActiveSlotId('')}
+        onMarkSlotReviewed={(slot) => {
+          markSlotReviewed(slot.id);
+          addToast(`${slot.scheduledTime} marked as reviewed.`, 'success');
+        }}
+      />
+
+      {/* Review Mode Tabs */}
+      <Tabs
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: 'idle', label: 'Idle Flags', icon: TimerOff, count: pendingIdleCount },
+          { id: 'overlap', label: 'Overlap Flags', icon: Copy, count: pendingOverlapCount },
+          { id: 'daily', label: 'Daily Time Log', icon: FileSpreadsheet, count: timeEntries.length },
+        ]}
+      />
+
+      {/* A. Idle Flags Review Workflow */}
+      {activeTab === 'idle' && (
+        <TimeReviewFlagsPanel
+          mode="idle"
+          flags={idleFlags}
+          activeSlotId={activeSlotId}
+          onUpdateFlagStatus={handleUpdateIdleFlagStatus}
+        />
+      )}
+
+      {/* B. Overlap Flags Review Workflow */}
+      {activeTab === 'overlap' && (
+        <TimeReviewFlagsPanel
+          mode="overlap"
+          flags={overlapFlags}
+          activeSlotId={activeSlotId}
+          onUpdateFlagStatus={handleUpdateOverlapFlagStatus}
+        />
+      )}
+
+      {/* Existing Grouped Day-by-Day Audit Log */}
+      {activeTab === 'daily' && (
+      <div className="space-y-6">
       {/* Filters */}
       <FilterBar
         filters={[
@@ -134,6 +234,8 @@ export function DailyTimeReview() {
           })
         )}
       </div>
+      </div>
+      )}
     </div>
   );
 }

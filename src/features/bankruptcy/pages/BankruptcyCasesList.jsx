@@ -256,7 +256,7 @@ export function BankruptcyCasesList() {
           { label: 'Bankruptcy Workspace' }
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="primary"
               size="sm"
@@ -291,7 +291,7 @@ export function BankruptcyCasesList() {
       />
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Active Dockets</span>
           <span className="text-2xl font-bold text-[#06244B] mt-1 block">{cases.length}</span>

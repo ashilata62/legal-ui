@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MOCK_TIME_ENTRIES } from '../data/mockTimeEntries';
 import { MOCK_EXPENSES } from '../data/mockExpenses';
 import { MOCK_INVOICES } from '../data/mockInvoices';
+import { INITIAL_REVIEW_SLOTS } from '../data/mockTimeReviewSchedules';
 import { mockStorage } from '../services/mockStorage';
 
 const TimeContext = createContext();
@@ -43,6 +44,20 @@ export function TimeProvider({ children }) {
       }
     ]);
   });
+
+  const [reviewSlots, setReviewSlots] = useState(INITIAL_REVIEW_SLOTS);
+
+  const markSlotReviewed = (slotId) => {
+    setReviewSlots(prev => prev.map(slot => (
+      slot.id === slotId
+        ? {
+            ...slot,
+            reviewStatus: 'Completed',
+            lastReviewedTime: 'Just now (Mountain Time)',
+          }
+        : slot
+    )));
+  };
 
   useEffect(() => {
     mockStorage.set('time_entries', timeEntries);
@@ -212,6 +227,8 @@ export function TimeProvider({ children }) {
       recordPayment,
       cosmoLexExports,
       exportApprovedToCosmoLex,
+      reviewSlots,
+      markSlotReviewed,
     }}>
       {children}
     </TimeContext.Provider>
