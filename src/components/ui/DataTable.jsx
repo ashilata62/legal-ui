@@ -64,7 +64,7 @@ export function DataTable({
                   key={col.key || idx}
                   scope="col"
                   onClick={() => col.sortable && handleSort(col.sortField || col.key)}
-                  className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider ${
+                  className={`px-2.5 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${
                     col.sortable ? 'cursor-pointer select-none hover:bg-[#D9D6CF]/40' : ''
                   } ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
                 >
@@ -124,7 +124,7 @@ export function DataTable({
                     return (
                       <td
                         key={col.key || colIdx}
-                        className={`px-4 py-3 text-[#202A35] ${
+                        className={`px-2.5 py-3 text-[#202A35] ${
                           col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                         }`}
                       >

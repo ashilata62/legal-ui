@@ -53,24 +53,26 @@ export function MattersList() {
       label: 'Matter ID & Caption',
       sortable: true,
       render: (val, row) => (
-        <div className="min-w-[200px]">
+        <div className="min-w-[160px] max-w-[205px]">
           <span className="font-serif font-bold text-[#06244B] hover:text-[#A4432B] block cursor-pointer text-sm leading-snug">
             {row.title}
           </span>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[#667085] mt-1">
-            <span className="font-semibold text-[#A4432B] whitespace-nowrap">{row.matterNumber}</span>
-            <span>•</span>
-            <span>Client: <strong className="text-[#06244B]">{row.clientName}</strong></span>
+          <div className="flex items-center gap-1.5 text-[11px] text-[#667085] mt-1 whitespace-nowrap overflow-hidden">
+            <span className="font-semibold text-[#A4432B] shrink-0">{row.matterNumber}</span>
+            <span className="shrink-0">•</span>
+            <span title={row.clientName} className="truncate">
+              Client: <strong className="text-[#06244B]">{row.clientName}</strong>
+            </span>
           </div>
         </div>
       ),
     },
     {
       key: 'practiceAreaName',
-      label: 'Practice Area (9 Confirmed)',
+      label: 'Practice Area',
       sortable: true,
       render: (val) => (
-        <span className="text-xs font-medium text-[#202A35] max-w-[200px] block truncate">
+        <span title={val} className="text-xs font-medium text-[#202A35] max-w-[120px] xl:max-w-[155px] block truncate">
           {val}
         </span>
       ),
@@ -80,7 +82,9 @@ export function MattersList() {
       label: 'Lead Attorney',
       sortable: true,
       render: (val) => (
-        <span className="text-xs font-semibold text-[#06244B] whitespace-nowrap">{val}</span>
+        <span title={val} className="text-xs font-semibold text-[#06244B] max-w-[130px] xl:max-w-none block truncate">
+          {val}
+        </span>
       ),
     },
     {
@@ -88,7 +92,7 @@ export function MattersList() {
       label: 'Billing',
       sortable: true,
       render: (val, row) => (
-        <div className="text-xs">
+        <div className="text-xs whitespace-nowrap">
           <span className="font-semibold text-[#06244B]">{val}</span>
           {val === 'Hourly' && <span className="text-[10px] text-[#667085] block">${row.hourlyRate}/hr</span>}
           {val === 'Flat Fee' && <span className="text-[10px] text-[#667085] block">{formatCurrency(row.flatFeeAmount)}</span>}
@@ -114,7 +118,7 @@ export function MattersList() {
       label: 'Actions',
       align: 'right',
       render: (val, row) => (
-        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-end gap-1 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => navigate(`/matters/${row.id}`)}
             className="p-1 rounded text-[#06244B] hover:bg-[#F5F0E5] hover:text-[#A4432B]"
@@ -157,16 +161,17 @@ export function MattersList() {
       />
 
       {/* Search and Filters */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-start">
+      <div className="bg-white p-3 rounded-lg border border-[#D9D6CF] shadow-subtle flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search matter title, case number, or client..."
-          className="xl:col-span-4"
+          placeholder="Search matter or client..."
+          className="w-full lg:w-48 xl:w-64 shrink-0"
         />
 
-        <div className="xl:col-span-8">
+        <div className="w-full lg:w-auto lg:flex lg:justify-end min-w-0">
           <FilterBar
+            className="!border-0 !shadow-none !p-0 !bg-transparent w-full lg:w-auto"
             filters={[
               {
                 id: 'practiceArea',
