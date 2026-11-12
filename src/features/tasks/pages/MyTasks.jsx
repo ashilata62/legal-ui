@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { CheckSquare, Plus, Search, Filter, Calendar, Clock, AlertTriangle, CheckCircle, Trash2, Edit, Lock, ArrowRight, Repeat } from 'lucide-react';
+import { CheckSquare, Plus, Search, Filter, Calendar, Clock, AlertTriangle, CheckCircle, Trash2, Edit, Lock, ArrowRight, Repeat, RotateCcw } from 'lucide-react';
 import { useTasks } from '../../../context/TaskContext';
 import { useMatters } from '../../../context/MatterContext';
 import { useAuth } from '../../../hooks/useAuth';
@@ -266,48 +266,66 @@ export function MyTasks() {
         }
       />
 
-      {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search my tasks or matters..."
-        />
-
-        <div className="md:col-span-2">
-          <FilterBar
-            filters={[
-              {
-                id: 'status',
-                label: 'Status',
-                value: statusFilter,
-                options: [
-                  { value: 'Not Started', label: 'Not Started' },
-                  { value: 'In Progress', label: 'In Progress' },
-                  { value: 'Waiting', label: 'Waiting' },
-                  { value: 'Completed', label: 'Completed' },
-                ],
-                onChange: setStatusFilter,
-              },
-              {
-                id: 'priority',
-                label: 'Priority',
-                value: priorityFilter,
-                options: [
-                  { value: 'Urgent', label: 'Urgent' },
-                  { value: 'High', label: 'High' },
-                  { value: 'Medium', label: 'Medium' },
-                  { value: 'Low', label: 'Low' },
-                ],
-                onChange: setPriorityFilter,
-              },
-            ]}
-            onReset={() => {
-              setSearchQuery('');
-              setStatusFilter('');
-              setPriorityFilter('');
-            }}
+      {/* Unified Executive Search & Filter Toolbar */}
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#EAECF0] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative w-full lg:max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-[#98A2B3]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search my tasks or matters..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#F9FAFB] border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] focus:bg-white transition-all"
           />
+        </div>
+
+        {/* Filter Dropdowns & Reset */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#475467] mr-1">
+            <Filter className="w-3.5 h-3.5 text-[#A4432B]" />
+            <span className="uppercase text-[10px] tracking-wider font-mono">Filters:</span>
+          </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Status: All</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Waiting">Waiting</option>
+            <option value="Completed">Completed</option>
+          </select>
+
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Priority: All</option>
+            <option value="Urgent">Urgent</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+
+          {(searchQuery || statusFilter || priorityFilter) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('');
+                setPriorityFilter('');
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              title="Clear all filters and search"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
 

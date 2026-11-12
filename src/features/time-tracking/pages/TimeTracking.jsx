@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Clock, Plus, Filter, Search, CheckCircle2, DollarSign, Calendar, FileSpreadsheet } from 'lucide-react';
+import { Clock, Plus, Filter, Search, CheckCircle2, DollarSign, Calendar, FileSpreadsheet, RotateCcw } from 'lucide-react';
 import { useTime } from '../../../context/TimeContext';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../components/ui/Toast';
@@ -143,45 +143,66 @@ export function TimeTracking() {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by description, matter, or lawyer..."
-          className="md:col-span-1"
-        />
-
-        <div className="md:col-span-2">
-          <FilterBar
-            filters={[
-              {
-                id: 'status',
-                label: 'Status',
-                value: statusFilter,
-                options: [
-                  { value: 'Draft', label: 'Draft' },
-                  { value: 'Submitted', label: 'Submitted' },
-                  { value: 'Approved', label: 'Approved' },
-                  { value: 'Rejected', label: 'Rejected' },
-                  { value: 'Exported', label: 'Exported to CosmoLex' },
-                ],
-                onChange: setStatusFilter,
-              },
-              {
-                id: 'user',
-                label: 'Timekeeper',
-                value: userFilter,
-                options: allUsers.map(u => ({ value: u.id, label: u.name })),
-                onChange: setUserFilter,
-              },
-            ]}
-            onReset={() => {
-              setSearchQuery('');
-              setStatusFilter('');
-              setUserFilter('');
-            }}
+      {/* Unified Executive Search & Filter Toolbar */}
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#EAECF0] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative w-full lg:max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-[#98A2B3]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by description, matter, or lawyer..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#F9FAFB] border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] focus:bg-white transition-all"
           />
+        </div>
+
+        {/* Filter Dropdowns & Reset */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#475467] mr-1">
+            <Filter className="w-3.5 h-3.5 text-[#A4432B]" />
+            <span className="uppercase text-[10px] tracking-wider font-mono">Filters:</span>
+          </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Status: All</option>
+            <option value="Draft">Draft</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Exported">Exported to CosmoLex</option>
+          </select>
+
+          <select
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Timekeeper: All</option>
+            {allUsers.map((u) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+
+          {(searchQuery || statusFilter || userFilter) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('');
+                setUserFilter('');
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              title="Clear all filters and search"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
 
