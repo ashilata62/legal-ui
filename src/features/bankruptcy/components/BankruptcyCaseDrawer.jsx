@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Landmark,
@@ -15,21 +15,35 @@ import {
   Plus,
   Flame,
   Scale,
-  Printer
+  Printer,
+  Building2,
+  ClipboardList
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
 import { AddCreditorModal } from './AddCreditorModal';
 import { ChapterSelectorModal } from './ChapterSelectorModal';
 import { EmergencyFilingModal } from './EmergencyFilingModal';
+import { PostFilingAdminTab } from './PostFilingAdminTab';
 import { MOCK_BANKRUPTCY_SCHEDULES } from '../../../data/mockBankruptcySchedules';
+import {
+  getDefaultDistrictAndFormDetails,
+  getDefaultPostFilingAdmin,
+} from '../../../data/mockBankruptcyCases';
 import { Link } from 'react-router-dom';
 import { Modal } from '../../../components/ui/Modal';
 import { useToast } from '../../../components/ui/Toast';
 
 export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdateCase }) {
-  const [activeTab, setActiveTab] = useState('debtor'); // 'debtor', 'schedules', 'means', 'sec521', 'plan'
+  const [activeTab, setActiveTab] = useState('debtor'); // 'debtor', 'schedules', 'means', 'sec521', 'plan', 'postFiling'
   const [currentCase, setCurrentCase] = useState(bankruptcyCase);
+
+  useEffect(() => {
+    setCurrentCase(bankruptcyCase);
+    if (!isOpen) {
+      setActiveTab('debtor');
+    }
+  }, [bankruptcyCase, isOpen]);
   const [isAddCreditorOpen, setIsAddCreditorOpen] = useState(false);
   const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
@@ -37,6 +51,20 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
   const { addToast } = useToast();
 
   if (!isOpen || !currentCase) return null;
+
+  const districtAndFormDetails =
+    currentCase.districtAndFormDetails || getDefaultDistrictAndFormDetails(currentCase.chapter);
+  const postFilingAdmin =
+    currentCase.postFilingAdmin || getDefaultPostFilingAdmin(currentCase);
+
+  const handleUpdatePostFiling = (updatedPostFilingAdmin) => {
+    const updated = {
+      ...currentCase,
+      postFilingAdmin: updatedPostFilingAdmin,
+    };
+    setCurrentCase(updated);
+    if (onUpdateCase) onUpdateCase(updated);
+  };
 
   const schedules = MOCK_BANKRUPTCY_SCHEDULES[currentCase.id] || MOCK_BANKRUPTCY_SCHEDULES['BNK-2026-001'];
   const debtorProfile = currentCase.debtorProfile || {
@@ -126,8 +154,8 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
             <h2 className="text-base font-bold mt-1 text-white truncate max-w-2xl">
               {currentCase.debtorName} {currentCase.jointDebtorName !== 'None (Individual)' ? `& ${currentCase.jointDebtorName}` : ''}
             </h2>
-            <div className="text-xs text-slate-300 mt-0.5 flex gap-4">
-              <span>Venue: <strong>District of Utah (Salt Lake City)</strong></span>
+            <div className="text-xs text-slate-300 mt-0.5 flex flex-wrap gap-x-4 gap-y-1">
+              <span>Venue: <strong>{districtAndFormDetails.courtDistrict} ({districtAndFormDetails.courtDivision})</strong></span>
               <span>Judge: <strong>{currentCase.assignedJudge}</strong></span>
               <span>Trustee: <strong>{currentCase.trusteeName}</strong></span>
             </div>
@@ -148,6 +176,7 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
             { id: 'means', label: '3. Means-Test & Exemptions', icon: Calculator },
             { id: 'sec521', label: '4. Sec 521 Docs & Emergency Clock', icon: ShieldCheck },
             { id: 'plan', label: '5. Chapter Plan & 341 Milestones', icon: Landmark },
+            { id: 'postFiling', label: '6. Post-Filing Administration', icon: ClipboardList },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -170,6 +199,48 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
 
         {/* Drawer Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs text-[#202A35]">
+          {/* District & Form Edition Details Card */}
+          <div className="bg-white border border-[#D9D6CF] rounded-lg p-3.5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 mb-2.5 border-b border-[#D9D6CF]">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-[#06244B]" />
+                <span className="font-bold text-xs uppercase tracking-wide text-[#06244B]">
+                  District &amp; Form Edition Details
+                </span>
+              </div>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                <CheckCircle2 className="w-3 h-3" />
+                Last Verified: {districtAndFormDetails.lastVerifiedDate}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2 text-xs">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Bankruptcy Court District</span>
+                <span className="font-semibold text-[#06244B]">{districtAndFormDetails.courtDistrict}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Court Division</span>
+                <span className="font-semibold text-[#202A35]">{districtAndFormDetails.courtDivision}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Applicable Form Number</span>
+                <span className="font-mono font-semibold text-[#06244B]">{districtAndFormDetails.applicableFormNumber}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Form Edition</span>
+                <span className="font-semibold text-[#202A35]">{districtAndFormDetails.formEdition}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Form Edition Date</span>
+                <span className="font-mono font-semibold text-[#202A35]">{districtAndFormDetails.formEditionDate}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#667085] block">Last Verified Date</span>
+                <span className="font-mono font-semibold text-emerald-800">{districtAndFormDetails.lastVerifiedDate}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Tab 1: Debtor Profile & Census */}
           {activeTab === 'debtor' && (
             <div className="space-y-4">
@@ -534,6 +605,16 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Tab 6: Post-Filing Administration */}
+          {activeTab === 'postFiling' && (
+            <PostFilingAdminTab
+              currentCase={currentCase}
+              postFilingAdmin={postFilingAdmin}
+              onUpdatePostFiling={handleUpdatePostFiling}
+              addToast={addToast}
+            />
           )}
         </div>
 

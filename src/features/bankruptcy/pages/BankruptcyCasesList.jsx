@@ -118,7 +118,14 @@ export function BankruptcyCasesList() {
         <div className="text-xs">
           <div className="font-semibold text-[#06244B]">{row.assignedJudge}</div>
           <div className="text-[11px] text-[#667085] truncate max-w-xs">{row.trusteeName}</div>
-          <div className="text-[10px] text-slate-400">District of Utah (SLC)</div>
+          <div className="text-[10px] text-slate-500">
+            {row.districtAndFormDetails?.courtDistrict || 'District of Utah'} • {row.districtAndFormDetails?.courtDivision || 'Salt Lake City Division'}
+          </div>
+          {row.districtAndFormDetails?.formEdition && (
+            <div className="text-[10px] font-mono text-[#06244B]/80">
+              {row.districtAndFormDetails.formEdition} (Ver. {row.districtAndFormDetails.lastVerifiedDate})
+            </div>
+          )}
         </div>
       ),
     },

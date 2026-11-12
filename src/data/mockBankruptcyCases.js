@@ -260,5 +260,429 @@ export const MOCK_BANKRUPTCY_CASES = [
   }
 ];
 
+export function getDefaultDistrictAndFormDetails(chapter = 'Chapter 7') {
+  const formByChapter = {
+    'Chapter 7': {
+      applicableFormNumber: 'Official Form 101 / Form 122A-1 & 122A-2',
+      formEdition: 'Rev. 12/25 Official Bankruptcy Forms',
+      formEditionDate: '2025-12-01',
+    },
+    'Chapter 13': {
+      applicableFormNumber: 'Official Form 101 / Form 122C-1 & UT Local Form 2083-1',
+      formEdition: 'Rev. 12/25 Official & District Local Forms',
+      formEditionDate: '2025-12-01',
+    },
+    'Chapter 11': {
+      applicableFormNumber: 'Official Form 201 / Form 425A (Subchapter V Plan)',
+      formEdition: 'Rev. 12/25 Non-Individual Reorganization Forms',
+      formEditionDate: '2025-12-01',
+    },
+  };
+
+  const selected = formByChapter[chapter] || formByChapter['Chapter 7'];
+  return {
+    courtDistrict: 'District of Utah',
+    courtDivision: 'Salt Lake City Division (Central)',
+    applicableFormNumber: selected.applicableFormNumber,
+    formEdition: selected.formEdition,
+    formEditionDate: selected.formEditionDate,
+    lastVerifiedDate: '2026-03-18',
+  };
+}
+
+export function getDefaultPostFilingAdmin(caseItem = {}) {
+  const isLiquidation = caseItem.chapter === 'Chapter 7';
+  return {
+    trusteeNotices: [],
+    meetings341: [],
+    objections: [],
+    planConfirmation: {
+      planSubmissionDate: isLiquidation ? 'N/A (Chapter 7 Liquidation)' : 'Pending Filing',
+      confirmationHearingDate: isLiquidation ? 'N/A' : (caseItem.confirmationHearingDate || 'To Be Scheduled'),
+      planStatus: isLiquidation ? 'Not Applicable (Ch. 7)' : 'Draft / Pending Submission',
+      confirmationStatus: isLiquidation ? 'N/A — No Repayment Plan' : 'Pending',
+      relatedNotes: isLiquidation
+        ? 'Chapter 7 liquidation case; no repayment plan confirmation hearing required under 11 U.S.C. Chapter 7.'
+        : 'Initial plan confirmation milestones will update once the Chapter plan and hearing notice are docketed.',
+    },
+    caseEvents: [],
+  };
+}
+
+const CASE_PHASE3_ENRICHMENTS = {
+  'BNK-2026-001': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Salt Lake City Division (Central)',
+      applicableFormNumber: 'Official Form 101 / Form 122A-1 (Means Test)',
+      formEdition: 'Rev. 12/25 Official Bankruptcy Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-19',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [
+        {
+          id: 'TN-101',
+          title: 'Trustee Report of No Distribution (NDR)',
+          trusteeName: 'George B. Hofmann, Chapter 7 Trustee',
+          dateReceived: '2026-03-06',
+          responseDeadline: '2026-03-27',
+          status: 'Completed',
+          docketEntry: 'ECF Dkt. #18',
+          summary: 'Chapter 7 Trustee concluded the § 341 examination and certified that no non-exempt assets exist for creditor distribution.',
+          requiredAction: 'Monitor 60-day Rule 4004 objection window; ensure Debtor Financial Management Certificate (Form 423) remains docketed.',
+        },
+        {
+          id: 'TN-102',
+          title: 'Request for 2025 Federal Tax Refund Accounting',
+          trusteeName: 'George B. Hofmann, Chapter 7 Trustee',
+          dateReceived: '2026-02-26',
+          responseDeadline: '2026-03-15',
+          status: 'Resolved',
+          docketEntry: 'ECF Dkt. #14',
+          summary: 'Trustee requested pro-rata verification of pre-petition earned income tax credit and withholding split.',
+          requiredAction: 'Submitted pro-rata exemption worksheet under Utah Code § 78B-5-505; Trustee cleared inquiry.',
+        },
+      ],
+      meetings341: [
+        {
+          id: 'M341-101',
+          meetingDateTime: '2026-03-05 • 09:30 AM MT',
+          locationOrVirtual: 'Zoom Video Conference • Meeting ID: 842 9104 3318 • Passcode: UTB341',
+          trusteeName: 'George B. Hofmann, Chapter 7 Trustee',
+          status: 'Completed',
+          notes: 'Debtor appeared with counsel on Zoom. Identity and SSN verified; Trustee concluded meeting without continuance.',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Government Photo ID & Original Social Security Card Verified', completed: true },
+            { id: 'chk-2', label: 'Most Recent Federal Tax Return Sent to Trustee (7 Days Prior)', completed: true },
+            { id: 'chk-3', label: '60-Day Pre-Petition Pay Advices Uploaded (§ 521)', completed: true },
+            { id: 'chk-4', label: 'Debtor Pre-341 Oath & Question Rehearsal Completed', completed: true },
+          ],
+        },
+      ],
+      objections: [
+        {
+          id: 'OBJ-101',
+          objectionType: 'Creditor Informal Inquiry — Vehicle Reaffirmation Valuation',
+          filedBy: 'Mountain America Credit Union (Counsel)',
+          filingDate: '2026-02-28',
+          responseDeadline: '2026-03-20',
+          status: 'Resolved',
+          docketNumber: 'Claim #4 / Informal Stipulation',
+          grounds: 'Creditor sought clarification on equity cushion and insurance binder for 2021 Ford F-150.',
+          proposedResolution: 'Provided updated insurance declarations and executed Reaffirmation Agreement; creditor withdrew objection.',
+          hearingDate: 'Vacated (Stipulated)',
+        },
+      ],
+      planConfirmation: {
+        planSubmissionDate: 'N/A (Chapter 7 Liquidation)',
+        confirmationHearingDate: 'N/A — Rule 4004 Discharge Bar Date: 2026-05-04',
+        planStatus: 'Not Applicable (Chapter 7)',
+        confirmationStatus: 'N/A — No Asset Liquidation',
+        relatedNotes: 'No repayment plan is filed in Chapter 7. Case is awaiting expiration of the 60-day discharge objection period following the concluded § 341 meeting.',
+      },
+      caseEvents: [
+        {
+          id: 'EVT-101',
+          eventType: 'Discharge',
+          eventDate: '2026-05-05',
+          description: 'Anticipated Order of Discharge under 11 U.S.C. § 727 upon expiration of FRBP 4004(a) deadline (Form 423 completed).',
+          status: 'Scheduled',
+        },
+      ],
+    },
+  },
+  'BNK-2026-002': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Salt Lake City Division (Central)',
+      applicableFormNumber: 'Official Form 101 / Form 122C-1 & UT Local Form 2083-1',
+      formEdition: 'Rev. 12/25 Official & District Local Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-20',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [
+        {
+          id: 'TN-201',
+          title: 'Standing Trustee Wage Deduction Order Confirmation',
+          trusteeName: 'Lon A. Jenkins, Chapter 13 Standing Trustee',
+          dateReceived: '2026-03-01',
+          responseDeadline: '2026-03-22',
+          status: 'Active',
+          docketEntry: 'ECF Dkt. #29',
+          summary: 'Confirmed payroll deduction employer withholding of $1,480.00/mo remitted directly to Standing Trustee lockbox.',
+          requiredAction: 'Verify April payroll stub shows automatic Chapter 13 plan deduction.',
+        },
+      ],
+      meetings341: [
+        {
+          id: 'M341-201',
+          meetingDateTime: '2026-01-29 • 11:00 AM MT',
+          locationOrVirtual: 'Zoom Video Hearing • U.S. Trustee Room B • ID: 891 4402 1190',
+          trusteeName: 'Lon A. Jenkins, Chapter 13 Standing Trustee',
+          status: 'Completed',
+          notes: 'Both joint debtors appeared. Trustee confirmed mortgage arrears schedule matched Proof of Claim #2.',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Joint Debtor IDs & SSN Cards Verified', completed: true },
+            { id: 'chk-2', label: 'First Plan Payment Receipt Confirmed ($1,480)', completed: true },
+            { id: 'chk-3', label: 'Mortgage Escrow & Homeowners Insurance Binder Uploaded', completed: true },
+            { id: 'chk-4', label: '2024–2025 Tax Transcripts Delivered to Trustee', completed: true },
+          ],
+        },
+      ],
+      objections: [
+        {
+          id: 'OBJ-201',
+          objectionType: 'Trustee Objection to Initial Plan Feasibility (Resolved by Amendment)',
+          filedBy: 'Lon A. Jenkins, Chapter 13 Standing Trustee',
+          filingDate: '2026-02-05',
+          responseDeadline: '2026-02-25',
+          status: 'Resolved',
+          docketNumber: 'ECF Dkt. #21',
+          grounds: 'Requested step-up contribution adjustment upon payoff of 401(k) loan in Month 18.',
+          proposedResolution: 'Filed First Amended Chapter 13 Plan incorporating step-up dividend; Trustee recommended confirmation.',
+          hearingDate: '2026-03-11 (Confirmed)',
+        },
+      ],
+      planConfirmation: {
+        planSubmissionDate: '2026-02-17',
+        confirmationHearingDate: '2026-03-11 • 09:30 AM MT',
+        planStatus: 'First Amended Plan (60 Months)',
+        confirmationStatus: 'Confirmed',
+        relatedNotes: 'Order Confirming Chapter 13 Plan entered on March 12, 2026. Debtors must remit annual tax returns to Standing Trustee through Month 60.',
+      },
+      caseEvents: [],
+    },
+  },
+  'BNK-2026-003': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Salt Lake City Division (Central)',
+      applicableFormNumber: 'Official Form 201 / Form 425A (Subchapter V Plan)',
+      formEdition: 'Rev. 12/25 Non-Individual Reorganization Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-17',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [
+        {
+          id: 'TN-301',
+          title: 'Subchapter V Monthly Operating Report (MOR) Compliance Notice',
+          trusteeName: 'David L. Miller, Subchapter V Trustee',
+          dateReceived: '2026-03-12',
+          responseDeadline: '2026-03-28',
+          status: 'Pending',
+          docketEntry: 'ECF Dkt. #34',
+          summary: 'Reminder that February 2026 Monthly Operating Report (Form 425C) and DIP bank reconciliation must be docketed before status conference.',
+          requiredAction: 'Upload controller-signed Form 425C and bank statements to CM/ECF.',
+        },
+      ],
+      meetings341: [
+        {
+          id: 'M341-301',
+          meetingDateTime: '2026-02-20 • 01:30 PM MT',
+          locationOrVirtual: '350 S. Main St., Room 301, Salt Lake City, UT (In-Person + Zoom Hybrid)',
+          trusteeName: 'David L. Miller, Subchapter V Trustee',
+          status: 'Completed',
+          notes: 'Managing member testified regarding fleet lease restructuring and accounts receivable aging.',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Corporate Resolution & Managing Member ID Verified', completed: true },
+            { id: 'chk-2', label: 'DIP Operating & Tax Escrow Account Signature Cards Filed', completed: true },
+            { id: 'chk-3', label: 'Proof of Commercial General Liability & Workers Comp Insurance', completed: true },
+            { id: 'chk-4', label: '90-Day Cash Collateral Budget Prepared', completed: true },
+          ],
+        },
+      ],
+      objections: [
+        {
+          id: 'OBJ-301',
+          objectionType: 'Objection to Use of Cash Collateral & Adequate Protection Terms',
+          filedBy: 'Zions First National Bank (Secured Equipment Lender)',
+          filingDate: '2026-03-08',
+          responseDeadline: '2026-03-26',
+          status: 'In Review',
+          docketNumber: 'ECF Dkt. #31',
+          grounds: 'Lender seeks monthly adequate protection payments of $4,200 on 6 HVAC service vans during reorganization.',
+          proposedResolution: 'Negotiating Second Interim Cash Collateral Stipulation at $3,400/mo pending § 1191(b) confirmation.',
+          hearingDate: '2026-04-02 • 10:00 AM MT',
+        },
+      ],
+      planConfirmation: {
+        planSubmissionDate: '2026-03-09',
+        confirmationHearingDate: '2026-04-30 • 02:00 PM MT',
+        planStatus: 'Subchapter V Plan Filed (Consensual Track)',
+        confirmationStatus: 'In Progress',
+        relatedNotes: '90-day statutory Subchapter V plan deadline satisfied. Soliciting Class 3 general unsecured ballots prior to April 23 voting deadline.',
+      },
+      caseEvents: [
+        {
+          id: 'EVT-301',
+          eventType: 'Conversion',
+          eventDate: '2026-03-14',
+          description: 'Contingency review: Debtor elected Subchapter V path; no conversion to Chapter 7 recommended while cash flow remains +11% over budget.',
+          status: 'Reviewed',
+        },
+      ],
+    },
+  },
+  'BNK-2026-004': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Northern Division (Ogden / Salt Lake Filing Office)',
+      applicableFormNumber: 'Official Form 101 (Emergency Skeleton Petition)',
+      formEdition: 'Rev. 12/25 Official Bankruptcy Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-21',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [
+        {
+          id: 'TN-401',
+          title: '14-Day Deficiency Notice — Missing Schedules A/B–J & Form 122A-1',
+          trusteeName: 'Peggy Hunt, Chapter 7 Trustee',
+          dateReceived: '2026-03-16',
+          responseDeadline: '2026-03-29',
+          status: 'Overdue',
+          docketEntry: 'ECF Dkt. #5',
+          summary: 'Clerk & Trustee Deficiency Notice triggered by Emergency Bare-Bones Voluntary Petition. Case subject to automatic dismissal without further notice if Schedules A–J remain unfiled past deadline.',
+          requiredAction: 'Complete Schedule A/B, C, D, E/F, I, J, SOFA, and Means Test Form 122A-1 immediately.',
+        },
+      ],
+      meetings341: [
+        {
+          id: 'M341-401',
+          meetingDateTime: '2026-04-16 • 10:00 AM MT',
+          locationOrVirtual: 'Zoom Video Conference • Meeting ID: 855 3012 7741 • Passcode: 774100',
+          trusteeName: 'Peggy Hunt, Chapter 7 Trustee',
+          status: 'Pending',
+          notes: 'Must transmit 2025 tax return and 60-day pay stubs at least 7 days prior (by April 9, 2026).',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Photo ID & SSN Card Verification Upload', completed: true },
+            { id: 'chk-2', label: 'Pre-Petition Tax Return Delivered to Trustee', completed: false },
+            { id: 'chk-3', label: '60-Day Employer Pay Advices Uploaded', completed: false },
+            { id: 'chk-4', label: 'Debtor Pre-341 Prep Call Scheduled', completed: false },
+          ],
+        },
+      ],
+      objections: [],
+      planConfirmation: {
+        planSubmissionDate: 'N/A (Chapter 7 Emergency Filing)',
+        confirmationHearingDate: 'N/A',
+        planStatus: 'Not Applicable (Chapter 7)',
+        confirmationStatus: 'N/A — Deficiency Cure In Progress',
+        relatedNotes: 'Priority is curing 14-day § 521 schedule deficiencies before 2026-03-29 to preserve the § 362 automatic stay halting wage garnishment.',
+      },
+      caseEvents: [],
+    },
+  },
+  'BNK-2026-005': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Southern Division (St. George / Provo Docket)',
+      applicableFormNumber: 'Official Form 101 / Form 122C-1 & UT Local Form 2083-1',
+      formEdition: 'Rev. 12/25 Official & District Local Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-19',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [
+        {
+          id: 'TN-501',
+          title: 'Pre-Confirmation TFS / ePay Plan Arrearage Audit',
+          trusteeName: 'Lon A. Jenkins, Chapter 13 Standing Trustee',
+          dateReceived: '2026-03-11',
+          responseDeadline: '2026-04-04',
+          status: 'Pending',
+          docketEntry: 'ECF Dkt. #19',
+          summary: 'Standing Trustee requested verification of Month 2 TFS electronic plan payment clearing prior to April confirmation docket.',
+          requiredAction: 'Confirm TFS settlement receipt #TFS-88412 and send courtesy copy to Trustee staff attorney.',
+        },
+      ],
+      meetings341: [
+        {
+          id: 'M341-501',
+          meetingDateTime: '2026-04-09 • 09:00 AM MT',
+          locationOrVirtual: 'Zoom Video Hearing • Meeting ID: 819 7721 6604 • Passcode: CH13UT',
+          trusteeName: 'Lon A. Jenkins, Chapter 13 Standing Trustee',
+          status: 'Pending',
+          notes: 'Debtor counsel to confirm vehicle cramdown interest rate (Till rate 8.25%) at § 341 examination.',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Debtor Photo ID & Social Security Verification', completed: true },
+            { id: 'chk-2', label: '2025 Tax Return & W-2s Sent to Trustee', completed: true },
+            { id: 'chk-3', label: 'Month 1 & Month 2 Plan Payments Verified', completed: false },
+            { id: 'chk-4', label: 'Debtor Pre-Hearing Call Completed', completed: false },
+          ],
+        },
+      ],
+      objections: [
+        {
+          id: 'OBJ-501',
+          objectionType: 'Secured Creditor Objection to Plan Interest Rate & Vehicle Valuation',
+          filedBy: 'Utah First Credit Union',
+          filingDate: '2026-03-14',
+          responseDeadline: '2026-04-03',
+          status: 'Pending',
+          docketNumber: 'ECF Dkt. #22',
+          grounds: 'Creditor disputes JD Power clean retail valuation ($18,400 vs. plan $16,200) on 2020 Subaru Outback.',
+          proposedResolution: 'Preparing counter-appraisal & stipulation at $17,300 with 8.50% Till interest rate.',
+          hearingDate: '2026-04-21 • 09:30 AM MT',
+        },
+      ],
+      planConfirmation: {
+        planSubmissionDate: '2026-02-22',
+        confirmationHearingDate: '2026-04-21 • 09:30 AM MT',
+        planStatus: 'Initial Chapter 13 Plan Pending Confirmation',
+        confirmationStatus: 'In Progress',
+        relatedNotes: 'Confirmation hearing set on Judge Anderson calendar. Need stipulation with Utah First Credit Union filed 7 days before hearing.',
+      },
+      caseEvents: [],
+    },
+  },
+  'BNK-2026-006': {
+    districtAndFormDetails: {
+      courtDistrict: 'District of Utah',
+      courtDivision: 'Salt Lake City Division (Central)',
+      applicableFormNumber: 'Official Form 101 / Form 122A-1 (No-Asset Ch. 7)',
+      formEdition: 'Rev. 12/25 Official Bankruptcy Forms',
+      formEditionDate: '2025-12-01',
+      lastVerifiedDate: '2026-03-16',
+    },
+    postFilingAdmin: {
+      trusteeNotices: [],
+      meetings341: [
+        {
+          id: 'M341-601',
+          meetingDateTime: '2026-04-14 • 01:00 PM MT',
+          locationOrVirtual: 'Zoom Video Hearing • Meeting ID: 874 1190 5521 • Passcode: UTB006',
+          trusteeName: 'George B. Hofmann, Chapter 7 Trustee',
+          status: 'Pending',
+          notes: 'Standard no-asset § 341 examination scheduled via Zoom. Remind debtor to log in 15 minutes early.',
+          preparationChecklist: [
+            { id: 'chk-1', label: 'Photo ID & SSN Verification Uploaded', completed: true },
+            { id: 'chk-2', label: 'Most Recent Tax Return Transmitted to Trustee', completed: true },
+            { id: 'chk-3', label: 'Financial Management Course (Form 423) Completed', completed: false },
+          ],
+        },
+      ],
+      objections: [],
+      planConfirmation: {
+        planSubmissionDate: 'N/A (Chapter 7 No-Asset Case)',
+        confirmationHearingDate: 'N/A',
+        planStatus: 'Not Applicable (Chapter 7)',
+        confirmationStatus: 'N/A — Standard Liquidation',
+        relatedNotes: 'Standard no-asset Chapter 7 filing. No plan confirmation required; focus is § 341 attendance and Form 423 debtor education filing.',
+      },
+      caseEvents: [],
+    },
+  },
+};
+
+MOCK_BANKRUPTCY_CASES.forEach((caseItem) => {
+  const enrichment = CASE_PHASE3_ENRICHMENTS[caseItem.id];
+  caseItem.districtAndFormDetails = enrichment?.districtAndFormDetails || getDefaultDistrictAndFormDetails(caseItem.chapter);
+  caseItem.postFilingAdmin = enrichment?.postFilingAdmin || getDefaultPostFilingAdmin(caseItem);
+});
+
 export const getBankruptcyCaseById = (id) => MOCK_BANKRUPTCY_CASES.find(b => b.id === id);
 
