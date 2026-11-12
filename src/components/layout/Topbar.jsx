@@ -428,15 +428,14 @@ export function Topbar({ onMenuToggle, onOpenLogTime, onOpenAddClient, onOpenNew
         {/* User Profile Menu */}
         <div className="relative">
           <button
+            type="button"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 p-1 rounded hover:bg-[#F5F0E5] transition-colors cursor-pointer"
+            className="flex items-center justify-center p-0.5 rounded-full hover:bg-[#F5F0E5] transition-colors cursor-pointer"
+            title={`${currentUser.name} (${currentUser.title})`}
+            aria-label="User Profile Menu"
           >
-            <div className="w-8 h-8 rounded-full bg-[#06244B] text-[#F5F0E5] flex items-center justify-center font-bold text-xs">
+            <div className="w-8 h-8 rounded-full bg-[#06244B] text-[#F5F0E5] flex items-center justify-center font-bold text-xs shadow-xs hover:ring-2 hover:ring-[#A4432B] transition-all">
               {currentUser.initials}
-            </div>
-            <div className="hidden xl:flex flex-col text-left">
-              <span className="text-xs font-bold text-[#06244B] leading-none">{currentUser.name.split(',')[0]}</span>
-              <span className="text-[10px] text-[#A4432B] font-medium leading-tight mt-0.5">{currentUser.title}</span>
             </div>
           </button>
 
