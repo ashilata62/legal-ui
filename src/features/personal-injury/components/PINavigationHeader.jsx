@@ -43,19 +43,19 @@ export function PINavigationHeader({
   return (
     <div className="mb-6 space-y-4">
       {/* Top Banner & Context Bar */}
-      <div className="bg-[#06244B] text-white rounded-lg p-4 sm:p-5 shadow-sm border border-[#0B356D]">
+      <div className="bg-[#06244B] text-white rounded-xl p-5 shadow-sm border border-[#0B356D]">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#B8C0C4]">
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-slate-300 font-mono">
               <span>Specialty Practice</span>
               <ChevronRight className="w-3.5 h-3.5 text-[#A4432B]" />
-              <span className="text-[#F5F0E5]">Personal Injury &amp; Wrongful Death Workspace</span>
+              <span className="text-white">Personal Injury &amp; Wrongful Death</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight flex items-center gap-2">
               {title || 'Personal Injury Workspace'}
             </h1>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-[#B8C0C4] max-w-2xl">
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
                 {subtitle}
               </p>
             )}
@@ -64,7 +64,7 @@ export function PINavigationHeader({
           {/* Quick Case Switcher & Action Area */}
           <div className="flex flex-wrap items-center gap-3">
             {cases.length > 0 && onCaseChange && (
-              <div className="flex items-center gap-2 bg-[#041833] border border-[#0B356D] rounded px-3 py-1.5 text-xs text-[#F5F0E5]">
+              <div className="flex items-center gap-2 bg-[#041833] border border-[#0B356D] rounded-lg px-3 py-2 text-xs text-[#F5F0E5]">
                 <FolderOpen className="w-4 h-4 text-[#A4432B]" />
                 <span className="font-semibold text-slate-300">Active PI Matter:</span>
                 <select
@@ -90,21 +90,21 @@ export function PINavigationHeader({
         {selectedCase && activeCaseId !== 'ALL' && (
           <div className="mt-4 pt-3 border-t border-[#0B356D]/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300">
             <div>
-              <span className="text-[#B8C0C4] block">Lead Matter:</span>
+              <span className="text-slate-400 block">Lead Matter:</span>
               <span className="font-semibold text-white truncate block">{selectedCase.matterTitle}</span>
             </div>
             <div>
-              <span className="text-[#B8C0C4] block">Accident Date &amp; Location:</span>
+              <span className="text-slate-400 block">Accident Date &amp; Location:</span>
               <span className="font-semibold text-white truncate block">{selectedCase.incidentDate} • {selectedCase.incidentLocation?.split(',')[0]}</span>
             </div>
             <div>
-              <span className="text-[#B8C0C4] block">Case Status:</span>
+              <span className="text-slate-400 block">Case Status:</span>
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#A4432B] text-white mt-0.5">
                 {selectedCase.status}
               </span>
             </div>
             <div>
-              <span className="text-[#B8C0C4] block">Utah SoL Bar Date:</span>
+              <span className="text-slate-400 block">Utah SoL Bar Date:</span>
               <span className="font-semibold text-amber-300 flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
                 {selectedCase.statuteOfLimitations}
@@ -115,7 +115,7 @@ export function PINavigationHeader({
       </div>
 
       {/* 9 Dedicated Navigation Tabs */}
-      <div className="bg-white rounded border border-[#D9D6CF] shadow-subtle p-1.5 overflow-x-auto">
+      <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-1.5 overflow-x-auto">
         <nav className="flex space-x-1 min-w-max">
           {PI_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -125,10 +125,10 @@ export function PINavigationHeader({
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-xs font-semibold transition-colors duration-150 ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors duration-150 ${
                   isActive
                     ? 'bg-[#06244B] text-white shadow-sm'
-                    : 'text-[#667085] hover:text-[#06244B] hover:bg-[#F5F0E5]/60'
+                    : 'text-[#667085] hover:text-[#06244B] hover:bg-slate-100'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-[#A4432B]' : 'text-[#667085]'}`} />
