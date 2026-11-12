@@ -14,7 +14,8 @@ import {
   DollarSign,
   Plus,
   Flame,
-  Scale
+  Scale,
+  Printer
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
@@ -23,6 +24,7 @@ import { ChapterSelectorModal } from './ChapterSelectorModal';
 import { EmergencyFilingModal } from './EmergencyFilingModal';
 import { MOCK_BANKRUPTCY_SCHEDULES } from '../../../data/mockBankruptcySchedules';
 import { Link } from 'react-router-dom';
+import { Modal } from '../../../components/ui/Modal';
 import { useToast } from '../../../components/ui/Toast';
 
 export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdateCase }) {
@@ -31,6 +33,7 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
   const [isAddCreditorOpen, setIsAddCreditorOpen] = useState(false);
   const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isSec521CertOpen, setIsSec521CertOpen] = useState(false);
   const { addToast } = useToast();
 
   if (!isOpen || !currentCase) return null;
@@ -424,8 +427,17 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
 
               {/* Section 521 Checklist */}
               <div className="border border-[#D9D6CF] rounded-lg overflow-hidden bg-white">
-                <div className="p-3 bg-[#F5F0E5] border-b border-[#D9D6CF] font-bold text-[#06244B]">
-                  11 U.S.C. § 521 Statutory Document Compliance Checklist
+                <div className="p-3 bg-[#F5F0E5] border-b border-[#D9D6CF] font-bold text-[#06244B] flex items-center justify-between">
+                  <span>11 U.S.C. § 521 Statutory Document Compliance Checklist</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    icon={Printer}
+                    onClick={() => setIsSec521CertOpen(true)}
+                    className="text-xs bg-white text-[#06244B]"
+                  >
+                    Trustee Compliance Certificate
+                  </Button>
                 </div>
                 <table className="w-full text-xs text-left">
                   <tbody className="divide-y divide-[#D9D6CF]">
@@ -556,6 +568,93 @@ export function BankruptcyCaseDrawer({ isOpen, onClose, bankruptcyCase, onUpdate
         bankruptcyCase={currentCase}
         onConfirmEmergencyFiling={handleConfirmEmergency}
       />
+
+      {/* Section 521 Compliance Certificate Modal */}
+      {isSec521CertOpen && (
+        <Modal
+          isOpen={isSec521CertOpen}
+          onClose={() => setIsSec521CertOpen(false)}
+          title="Attorney Certificate of 11 U.S.C. § 521 Compliance"
+          subtitle={`Case No: ${currentCase.caseNumber} • In re: ${currentCase.debtorName}`}
+          maxWidth="max-w-2xl"
+        >
+          <div className="space-y-4 text-xs text-[#202A35]">
+            <div className="p-4 bg-slate-50 border border-[#D9D6CF] rounded-lg font-serif space-y-3">
+              <div className="text-center border-b border-slate-300 pb-2">
+                <div className="font-bold text-xs uppercase tracking-wider text-[#06244B]">
+                  United States Bankruptcy Court
+                </div>
+                <div className="text-xs text-slate-700">District of Utah — Salt Lake City Division</div>
+              </div>
+
+              <div className="flex justify-between text-xs py-1">
+                <div>
+                  <strong>In re:</strong> {currentCase.debtorName}
+                  {currentCase.jointDebtorName !== 'None (Individual)' ? ` & ${currentCase.jointDebtorName}` : ''}
+                  <div className="text-[11px] text-slate-600">Debtor(s)</div>
+                </div>
+                <div className="text-right">
+                  <div><strong>Case No:</strong> {currentCase.caseNumber}</div>
+                  <div><strong>Chapter:</strong> {currentCase.chapter}</div>
+                  <div><strong>Trustee:</strong> {currentCase.trusteeName}</div>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 text-xs leading-relaxed space-y-2">
+                <p>
+                  <strong>CERTIFICATION OF COUNSEL PURSUANT TO 11 U.S.C. § 521(a)(1)(B)(iv) &amp; LOCAL RULE 1007-1:</strong>
+                </p>
+                <p>
+                  The undersigned attorney of record hereby certifies that:
+                </p>
+                <ol className="list-decimal list-inside space-y-1.5 pl-1">
+                  <li>
+                    Copies of all payment advices, pay stubs, and other evidence of payment received by the Debtor from all employers within 60 days before the petition date have been collected, verified, and transmitted to the Standing Trustee.
+                  </li>
+                  <li>
+                    A true and correct copy of the Debtor's federal income tax return for the most recent pre-petition tax year was provided to the Trustee at least 7 days prior to the Section 341 Meeting of Creditors in accordance with § 521(e)(2)(A)(i).
+                  </li>
+                  <li>
+                    The Debtor completed pre-petition credit counseling from an approved United States Trustee provider within 180 days prior to filing under 11 U.S.C. § 109(h).
+                  </li>
+                </ol>
+                <div className="mt-4 pt-4 border-t border-slate-300 flex justify-between items-end text-xs">
+                  <div>
+                    <div><strong>Attorney:</strong> {currentCase.assignedAttorneyName}</div>
+                    <div className="text-[11px] text-slate-500">Utah State Bar ID #14902</div>
+                    <div className="text-[11px] text-slate-500">Heugly &amp; Bludworth Attorneys at Law</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono text-emerald-800 font-bold">/s/ {currentCase.assignedAttorneyName}</div>
+                    <div className="text-[10px] text-slate-500">Electronically Verified • {new Date().toISOString().split('T')[0]}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#D9D6CF]">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSec521CertOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                icon={Printer}
+                onClick={() => {
+                  window.print();
+                  addToast('Certificate sent to system print dialog.', 'info');
+                }}
+              >
+                Print Official Certificate
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

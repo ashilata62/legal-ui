@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { Landmark, Plus, Search, Filter, AlertTriangle, FileSpreadsheet, Calculator, FileText, Eye } from 'lucide-react';
+import {
+  Landmark,
+  Plus,
+  Search,
+  Filter,
+  AlertTriangle,
+  FileSpreadsheet,
+  Calculator,
+  FileText,
+  Eye,
+  ShieldCheck,
+  Download,
+  Printer,
+  X,
+  CheckCircle2,
+  ExternalLink,
+  Flame
+} from 'lucide-react';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { DataTable } from '../../../components/ui/DataTable';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
@@ -7,10 +24,10 @@ import { Button } from '../../../components/ui/Button';
 import { SearchBar } from '../../../components/shared/SearchBar';
 import { FilterBar } from '../../../components/shared/FilterBar';
 import { Modal } from '../../../components/ui/Modal';
-import { Input } from '../../../components/ui/Input';
 import { MOCK_BANKRUPTCY_CASES } from '../../../data/mockBankruptcyCases';
 import { Link } from 'react-router-dom';
 import { BankruptcyCaseDrawer } from '../components/BankruptcyCaseDrawer';
+import { DebtorIntakeWizardModal } from '../components/DebtorIntakeWizardModal';
 import { useToast } from '../../../components/ui/Toast';
 
 export function BankruptcyCasesList() {
@@ -18,65 +35,24 @@ export function BankruptcyCasesList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [chapterFilter, setChapterFilter] = useState('');
   const [selectedCase, setSelectedCase] = useState(null);
-  const [isAddCaseOpen, setIsAddCaseOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isEcfModalOpen, setIsEcfModalOpen] = useState(false);
+  const [ecfTargetCase, setEcfTargetCase] = useState(null);
   const { addToast } = useToast();
 
-  // New Debtor Form State
-  const [debtorName, setDebtorName] = useState('');
-  const [jointDebtorName, setJointDebtorName] = useState('');
-  const [chapter, setChapter] = useState('Chapter 7');
-  const [householdSize, setHouseholdSize] = useState(2);
-  const [annualGrossIncome, setAnnualGrossIncome] = useState(65000);
-
-  const handleCreateCase = (e) => {
-    e.preventDefault();
-    if (!debtorName.trim()) {
-      addToast('Please enter primary debtor name.', 'error');
-      return;
-    }
-
-    const newCase = {
-      id: `BNK-2026-00${cases.length + 1}`,
-      caseNumber: `26-25${Math.floor(100 + Math.random() * 900)}-JTM`,
-      debtorName,
-      jointDebtorName: jointDebtorName ? jointDebtorName : 'None (Individual)',
-      chapter,
-      filingType: chapter === 'Chapter 13' ? 'Wage Earner Adjustment' : 'Individual Liquidation',
-      filingDate: new Date().toISOString().split('T')[0],
-      courtVenue: 'United States Bankruptcy Court, District of Utah (Salt Lake City)',
-      assignedJudge: 'Hon. Joel T. Marker',
-      trusteeName: chapter === 'Chapter 13' ? 'Lon A. Jenkins, Standing Chapter 13 Trustee' : 'D. Ray Strong, Standing Ch. 7 Trustee',
-      meeting341Date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
-      meeting341Status: 'Scheduled',
-      claimsBarDate: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
-      householdSize: Number(householdSize),
-      annualGrossIncome: Number(annualGrossIncome),
-      meansTestStatus: Number(annualGrossIncome) <= 91220 ? 'Below Utah Median (Passed Form 122A-1)' : 'Above Median',
-      totalAssets: 35000,
-      totalSecuredDebt: 12000,
-      totalPriorityDebt: 0,
-      totalUnsecuredDebt: 45000,
-      status: 'In Progress',
-      emergencyFiling: false,
-      creditCounselingFiled: true,
-      financialManagementFiled: false,
-      assignedAttorneyId: 'usr-2',
-      assignedAttorneyName: 'Thomas Bludworth, Esq.',
-      assignedParalegalId: 'usr-4',
-      assignedParalegalName: 'Marcus Vance',
-      notes: 'Newly filed bankruptcy proceeding.',
-    };
-
+  const handleCreateCaseFromWizard = (newCase) => {
     setCases(prev => [newCase, ...prev]);
-    addToast(`Bankruptcy case ${newCase.caseNumber} for ${debtorName} created!`, 'success');
-    setIsAddCaseOpen(false);
-    setDebtorName('');
-    setJointDebtorName('');
+    addToast(`Docket ${newCase.caseNumber} initiated for ${newCase.debtorName}!`, 'success');
   };
 
   const handleUpdateCase = (updated) => {
     setCases(prev => prev.map(c => c.id === updated.id ? updated : c));
     setSelectedCase(updated);
+  };
+
+  const handleOpenEcfModal = (caseItem) => {
+    setEcfTargetCase(caseItem || cases[0]);
+    setIsEcfModalOpen(true);
   };
 
   const filteredCases = cases.filter(c => {
@@ -98,57 +74,83 @@ export function BankruptcyCasesList() {
         <div>
           <button
             onClick={() => setSelectedCase(row)}
-            className="font-mono font-bold text-xs text-[#06244B] hover:text-[#A4432B] text-left block"
+            className="font-mono font-bold text-xs text-[#06244B] hover:text-[#A4432B] hover:underline block text-left"
           >
             {val}
           </button>
-          <span className="font-semibold text-sm text-[#06244B] block">{row.debtorName}</span>
-          {row.jointDebtorName !== 'None (Individual)' && (
-            <span className="text-[11px] text-[#667085] block">&amp; {row.jointDebtorName}</span>
+          <div className="text-xs font-semibold text-[#202A35]">{row.debtorName}</div>
+          {row.jointDebtorName && row.jointDebtorName !== 'None (Individual)' && (
+            <div className="text-[11px] text-[#667085]">Joint: {row.jointDebtorName}</div>
           )}
-        </div>
-      ),
-    },
-    {
-      key: 'chapter',
-      label: 'Chapter & Type',
-      sortable: true,
-      render: (val, row) => (
-        <div>
-          <span className="font-bold text-xs text-[#A4432B]">{val}</span>
-          <span className="text-[11px] text-[#667085] block">{row.filingType}</span>
           {row.emergencyFiling && (
-            <span className="bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.2 rounded text-[10px] font-bold inline-block mt-0.5">
-              Emergency 14-Day Clock
+            <span className="inline-flex items-center gap-1 mt-0.5 text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.2 rounded">
+              <Flame className="w-2.5 h-2.5" /> 14-Day Emergency Stay
             </span>
           )}
         </div>
       ),
     },
     {
-      key: 'meeting341Date',
-      label: '341 Meeting & Status',
+      key: 'chapter',
+      label: 'Chapter & Relief',
       sortable: true,
       render: (val, row) => (
         <div>
-          <span className="font-semibold text-xs text-[#06244B]">{val}</span>
-          <span className="text-[10px] text-[#667085] block leading-tight">{row.meeting341Status}</span>
+          <span
+            className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
+              val === 'Chapter 7'
+                ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                : val === 'Chapter 13'
+                ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                : 'bg-purple-100 text-purple-900 border border-purple-300'
+            }`}
+          >
+            {val}
+          </span>
+          <div className="text-[11px] text-[#667085] mt-0.5">{row.filingType}</div>
         </div>
       ),
     },
     {
-      key: 'trusteeName',
-      label: 'Standing Trustee',
-      render: (val) => <span className="text-xs text-[#202A35]">{val}</span>,
+      key: 'courtVenue',
+      label: 'Court, Judge & Trustee',
+      render: (_, row) => (
+        <div className="text-xs">
+          <div className="font-semibold text-[#06244B]">{row.assignedJudge}</div>
+          <div className="text-[11px] text-[#667085] truncate max-w-xs">{row.trusteeName}</div>
+          <div className="text-[10px] text-slate-400">District of Utah (SLC)</div>
+        </div>
+      ),
     },
     {
       key: 'meansTestStatus',
-      label: 'Means-Test / Plan',
+      label: 'Form 122 Means-Test',
       render: (val, row) => (
-        <div>
-          <span className="text-[11px] font-medium text-[#06244B] block">{val}</span>
+        <div className="text-xs">
+          <span
+            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              val.includes('Below')
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'bg-amber-50 text-amber-900 border border-amber-200'
+            }`}
+          >
+            {val}
+          </span>
+          <div className="text-[11px] text-[#667085] mt-0.5">
+            ${row.annualGrossIncome?.toLocaleString()}/yr (HH of {row.householdSize})
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'schedulesSummary',
+      label: 'Schedules (Assets / Debt)',
+      render: (_, row) => (
+        <div className="text-xs font-mono">
+          <div className="text-emerald-700">Assets: ${row.totalAssets?.toLocaleString()}</div>
+          <div className="text-red-700">Debt: ${(row.totalSecuredDebt + row.totalUnsecuredDebt)?.toLocaleString()}</div>
           {row.monthlyPlanPayment && (
-            <span className="text-[10px] font-bold text-emerald-700">
+            <span className="text-[10px] font-bold text-emerald-700 block">
               ${row.monthlyPlanPayment}/mo ({row.planTermMonths} mos)
             </span>
           )}
@@ -163,33 +165,80 @@ export function BankruptcyCasesList() {
     },
     {
       key: 'actions',
-      label: 'Action',
+      label: 'Actions',
       align: 'right',
       render: (_, row) => (
-        <Button
-          size="sm"
-          variant="outline"
-          icon={Eye}
-          onClick={() => setSelectedCase(row)}
-        >
-          View Case
-        </Button>
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            icon={Eye}
+            onClick={() => setSelectedCase(row)}
+            className="text-xs"
+          >
+            View
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={FileText}
+            onClick={() => handleOpenEcfModal(row)}
+            className="text-xs text-[#06244B]"
+            title="Compile Utah CM/ECF Filing Packet"
+          >
+            ECF
+          </Button>
+        </div>
       ),
     },
   ];
 
   return (
     <div className="space-y-6">
+      {/* Simulation Watermark Banner */}
       <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center justify-between text-xs text-amber-900">
         <div className="flex items-center gap-2">
           <Landmark className="w-4 h-4 text-amber-700 shrink-0" />
           <span>
-            <strong>[DEMO SIMULATION] Bankruptcy Practice Workspace:</strong> Model for Chapter 7, 13, and 11 representation. Adheres to District of Utah Local Rules &amp; U.S. Trustee Form 122 guidelines.
+            <strong>[DEMO SIMULATION] Bankruptcy Practice Workspace:</strong> Model for Chapter 7, 13, and 11 representation under District of Utah Local Rules &amp; U.S. Trustee Form 122 guidelines.
           </span>
         </div>
         <span className="bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded text-[10px]">
           PROTOTYPE
         </span>
+      </div>
+
+      {/* Official Court ECF Transmission Notice & Disclaimer Banner */}
+      <div className="bg-[#06244B] text-white p-4 rounded-xl shadow-md border-l-4 border-[#A4432B] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-white/10 rounded-lg text-amber-300 shrink-0 mt-0.5">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm tracking-wide text-white">
+                OFFICIAL COURT CM/ECF TRANSMISSION &amp; COMPLIANCE NOTICE
+              </h3>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-mono font-semibold">
+                FRBP RULE 1007
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
+              This module compiles, formats, and validates debtor petitions, Schedules A/B through J, Form 122 Means-Test statements, and raw ASCII Creditor Matrices in strict compliance with the District of Utah Clerk of Court specifications. Direct electronic filing must be submitted through the official court CM/ECF portal by attorney of record.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-white border-white/30 hover:bg-white/10 hover:text-white"
+            icon={Download}
+            onClick={() => handleOpenEcfModal(cases[0])}
+          >
+            Compile ECF Package
+          </Button>
+        </div>
       </div>
 
       <PageHeader
@@ -205,9 +254,10 @@ export function BankruptcyCasesList() {
               variant="primary"
               size="sm"
               icon={Plus}
-              onClick={() => setIsAddCaseOpen(true)}
+              onClick={() => setIsWizardOpen(true)}
+              className="bg-[#A4432B] hover:bg-[#8B3824]"
             >
-              New Debtor Filing
+              New Debtor Intake Wizard
             </Button>
             <Link to="/bankruptcy/means-test">
               <Button variant="outline" size="sm" icon={Calculator}>
@@ -242,12 +292,16 @@ export function BankruptcyCasesList() {
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Chapter 7 Liquidations</span>
-          <span className="text-2xl font-bold text-[#06244B] mt-1 block">3</span>
+          <span className="text-2xl font-bold text-[#06244B] mt-1 block">
+            {cases.filter(c => c.chapter === 'Chapter 7').length}
+          </span>
           <span className="text-[11px] text-[#667085]">Passed Form 122A-1 Median Test</span>
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Chapter 13 Active Plans</span>
-          <span className="text-2xl font-bold text-emerald-700 mt-1 block">2</span>
+          <span className="text-2xl font-bold text-emerald-700 mt-1 block">
+            {cases.filter(c => c.chapter === 'Chapter 13').length}
+          </span>
           <span className="text-[11px] text-[#667085]">36 &amp; 60 Month Standing Trustee Plans</span>
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
@@ -302,104 +356,100 @@ export function BankruptcyCasesList() {
         onUpdateCase={handleUpdateCase}
       />
 
-      {/* New Debtor Filing Modal */}
-      <Modal
-        isOpen={isAddCaseOpen}
-        onClose={() => setIsAddCaseOpen(false)}
-        title="Initiate New Debtor Bankruptcy Docket"
-        subtitle="U.S. Bankruptcy Court, District of Utah (Salt Lake City)"
-        maxWidth="max-w-md"
-      >
-        <form onSubmit={handleCreateCase} className="space-y-4 text-xs">
-          <div>
-            <Input
-              label="Primary Debtor Full Legal Name"
-              value={debtorName}
-              onChange={(e) => setDebtorName(e.target.value)}
-              placeholder="e.g. Rachel Lynn Walker"
-              required
-            />
-          </div>
+      {/* Structured Debtor Intake & Means-Test 5-Step Wizard */}
+      <DebtorIntakeWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onComplete={handleCreateCaseFromWizard}
+      />
 
-          <div>
-            <Input
-              label="Joint Debtor / Spouse (Optional)"
-              value={jointDebtorName}
-              onChange={(e) => setJointDebtorName(e.target.value)}
-              placeholder="Leave blank if individual filing"
-            />
-          </div>
+      {/* CM/ECF Electronic Filing Package Compiler Modal */}
+      {isEcfModalOpen && ecfTargetCase && (
+        <Modal
+          isOpen={isEcfModalOpen}
+          onClose={() => setIsEcfModalOpen(false)}
+          title={`Utah CM/ECF Court Package: ${ecfTargetCase.caseNumber}`}
+          subtitle={`Debtor: ${ecfTargetCase.debtorName} • ${ecfTargetCase.chapter}`}
+          maxWidth="max-w-3xl"
+        >
+          <div className="space-y-4 text-xs text-[#202A35]">
+            <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg flex items-center justify-between text-emerald-950">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div>
+                  <span className="font-bold text-xs block">FRBP Form Validation Succeeded (0 Errors)</span>
+                  <span className="text-[11px] text-emerald-800">
+                    All mandatory schedules, Utah exemption statutory citations, and Section 521 certifications verified.
+                  </span>
+                </div>
+              </div>
+              <span className="font-mono text-xs font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
+                READY FOR ECF
+              </span>
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[#202A35] uppercase mb-1">
-                Filing Chapter
-              </label>
-              <select
-                value={chapter}
-                onChange={(e) => setChapter(e.target.value)}
-                className="w-full text-xs p-2 rounded border border-[#D9D6CF] bg-white font-medium"
+            <div className="border border-[#D9D6CF] rounded-lg overflow-hidden bg-white">
+              <div className="p-3 bg-[#F5F0E5] font-bold text-[#06244B] border-b border-[#D9D6CF] flex justify-between">
+                <span>Compiled Filing Documents Index (PDF/A Format)</span>
+                <span className="text-[11px] text-[#667085]">District of Utah Local Form Specifications</span>
+              </div>
+              <div className="divide-y divide-[#D9D6CF]">
+                {[
+                  { name: 'Official Form 101: Voluntary Petition for Individuals', pages: '8 pages', status: 'Generated & Signed' },
+                  { name: 'Schedules A/B through J (Summary of Assets & Liabilities)', pages: '24 pages', status: 'Balanced ($0 variance)' },
+                  { name: 'Official Form 122A-1: Chapter 7 Statement of Monthly Income', pages: '4 pages', status: ecfTargetCase.meansTestStatus },
+                  { name: '11 U.S.C. § 521 Certificate of Payment Advices & Tax Compliance', pages: '2 pages', status: 'Counsel Verified' },
+                  { name: 'District of Utah Creditor Matrix (.txt ASCII Format)', pages: '42 Creditors', status: 'CM/ECF Compliant' },
+                ].map((item, idx) => (
+                  <div key={idx} className="p-3 flex items-center justify-between hover:bg-slate-50">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#A4432B]" />
+                      <div>
+                        <div className="font-semibold text-[#06244B]">{item.name}</div>
+                        <div className="text-[10px] text-[#667085]">{item.pages}</div>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      {item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 border border-[#D9D6CF] rounded-lg space-y-1 text-slate-700">
+              <div className="font-bold text-[#06244B]">Court Filing Instructions:</div>
+              <ol className="list-decimal list-inside space-y-0.5 text-[11px]">
+                <li>Download compiled package (.zip containing individual PDF/A filings and matrix.txt).</li>
+                <li>Log in to <strong>https://ecf.utb.uscourts.gov</strong> using Utah Bar ECF credentials.</li>
+                <li>Navigate to <em>Bankruptcy &rarr; Open a Voluntary Petition</em> and enter debtor demographics.</li>
+                <li>Upload the generated matrix text file to verify 100% address deliverability.</li>
+              </ol>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#D9D6CF]">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEcfModalOpen(false)}
               >
-                <option value="Chapter 7">Chapter 7 (Liquidation)</option>
-                <option value="Chapter 13">Chapter 13 (Wage Earner)</option>
-                <option value="Chapter 11">Chapter 11 (Subchapter V)</option>
-              </select>
-            </div>
-            <div>
-              <Input
-                label="Household Size"
-                type="number"
-                min="1"
-                max="10"
-                value={householdSize}
-                onChange={(e) => setHouseholdSize(Number(e.target.value))}
-                required
-              />
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                icon={Download}
+                onClick={() => {
+                  addToast(`ECF Package for ${ecfTargetCase.caseNumber} downloaded successfully!`, 'success');
+                  setIsEcfModalOpen(false);
+                }}
+              >
+                Download Compiled Package (.ZIP)
+              </Button>
             </div>
           </div>
-
-          <div>
-            <Input
-              label="Estimated Annual Gross Income ($)"
-              type="number"
-              value={annualGrossIncome}
-              onChange={(e) => setAnnualGrossIncome(Number(e.target.value))}
-              placeholder="e.g. 65000"
-              required
-            />
-            <span className="text-[10px] text-[#667085] mt-1 block">
-              Used for initial Form 122 median income screening test.
-            </span>
-          </div>
-
-          <div className="p-3 bg-amber-50 rounded border border-amber-200 text-amber-900 text-[11px] space-y-1">
-            <span className="font-bold block">[DEMO SIMULATION] Automatic Stay Notice:</span>
-            <span>
-              Filing automatically invokes 11 U.S.C. § 362 stay halting state court collections, garnishments, and foreclosure sales.
-            </span>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2 border-t border-[#D9D6CF]">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAddCaseOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              icon={Plus}
-            >
-              Initiate Docket
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </Modal>
+      )}
     </div>
   );
 }
-
