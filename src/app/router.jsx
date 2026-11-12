@@ -67,15 +67,19 @@ import { OperatingAccount } from '../features/billing/pages/OperatingAccount';
 import { TrustAccount } from '../features/billing/pages/TrustAccount';
 import { ChartOfAccounts } from '../features/billing/pages/ChartOfAccounts';
 import { GeneralLedgerView } from '../features/billing/pages/GeneralLedgerView';
+import { ThreeWayReconciliation } from '../features/billing/pages/ThreeWayReconciliation';
+import { SettlementCalculator } from '../features/billing/pages/SettlementCalculator';
 import { CosmoLexSettings } from '../features/integrations/pages/CosmoLexSettings';
 
 // Module 5: Reports & Settings
 import { StaffReports } from '../features/reports/pages/StaffReports';
 import { MatterReports } from '../features/reports/pages/MatterReports';
 import { FinancialReports } from '../features/reports/pages/FinancialReports';
+import { ComplianceMatrix } from '../features/reports/pages/ComplianceMatrix';
 import { UserManagement } from '../features/settings/pages/UserManagement';
 import { RolesPermissions } from '../features/settings/pages/RolesPermissions';
 import { TemplatesSettings } from '../features/settings/pages/TemplatesSettings';
+import { WorkflowManager } from '../features/settings/pages/WorkflowManager';
 import { ExternalIntegrations } from '../features/settings/pages/ExternalIntegrations';
 import { FirmBranding } from '../features/settings/pages/FirmBranding';
 import { NotificationsSettings } from '../features/settings/pages/NotificationsSettings';
@@ -150,6 +154,10 @@ export const router = createBrowserRouter([
       },
       // Phase 2: Specialty Practice - Immigration
       {
+        path: 'immigration',
+        element: <Navigate to="/immigration/cases" replace />,
+      },
+      {
         path: 'immigration/cases',
         element: <ImmigrationCasesList />,
       },
@@ -178,6 +186,10 @@ export const router = createBrowserRouter([
         element: <MultilingualQuestionnaires />,
       },
       // Phase 2: Specialty Practice - Bankruptcy
+      {
+        path: 'bankruptcy',
+        element: <Navigate to="/bankruptcy/cases" replace />,
+      },
       {
         path: 'bankruptcy/cases',
         element: <BankruptcyCasesList />,
@@ -398,14 +410,30 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'billing/cosmolex',
+        path: 'billing/reconciliation',
         element: (
-          <RoleRoute allowedRoles={['super_admin', 'billing']}>
-            <CosmoLexSettings />
+          <RoleRoute allowedRoles={['super_admin', 'supervisor', 'billing']}>
+            <ThreeWayReconciliation />
           </RoleRoute>
         ),
       },
+      {
+        path: 'billing/settlements',
+        element: (
+          <RoleRoute allowedRoles={['super_admin', 'supervisor', 'attorney', 'billing']}>
+            <SettlementCalculator />
+          </RoleRoute>
+        ),
+      },
+      {
+        path: 'billing/cosmolex',
+        element: <Navigate to="/billing/reconciliation" replace />,
+      },
       // Module 5: Reports & Settings
+      {
+        path: 'reports',
+        element: <Navigate to="/reports/matters" replace />,
+      },
       {
         path: 'reports/staff',
         element: (
@@ -429,6 +457,14 @@ export const router = createBrowserRouter([
             <FinancialReports />
           </RoleRoute>
         ),
+      },
+      {
+        path: 'compliance',
+        element: <ComplianceMatrix />,
+      },
+      {
+        path: 'reports/compliance',
+        element: <ComplianceMatrix />,
       },
       {
         path: 'settings',
@@ -455,6 +491,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleRoute allowedRoles={['super_admin', 'supervisor', 'attorney', 'paralegal']}>
             <TemplatesSettings />
+          </RoleRoute>
+        ),
+      },
+      {
+        path: 'settings/workflows',
+        element: (
+          <RoleRoute allowedRoles={['super_admin', 'supervisor']}>
+            <WorkflowManager />
           </RoleRoute>
         ),
       },

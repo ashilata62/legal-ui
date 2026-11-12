@@ -30,12 +30,9 @@ import {
   Database,
   Sparkles,
   Bell,
-  Activity,
   Scale,
-  Stethoscope,
-  DollarSign,
   Calculator,
-  Shield
+  Award
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -219,7 +216,8 @@ export function Sidebar({ collapsed, setCollapsed }) {
         { label: 'IOLTA Trust Account', to: '/billing/trust', icon: ShieldAlert },
         { label: 'Chart of Accounts', to: '/billing/chart-of-accounts', icon: Landmark },
         { label: 'General Ledger', to: '/billing/general-ledger', icon: FileSpreadsheet },
-        { label: 'CosmoLex Export', to: '/billing/cosmolex', icon: Database },
+        { label: '3-Way Reconciliation', to: '/billing/reconciliation', icon: Scale },
+        { label: 'Settlement Calculator', to: '/billing/settlements', icon: Calculator },
       ],
     },
     {
@@ -227,12 +225,14 @@ export function Sidebar({ collapsed, setCollapsed }) {
       label: '5. Reports & Settings',
       icon: Settings,
       subItems: [
+        { label: 'RFP Compliance Matrix (Req 9)', to: '/reports/compliance', icon: Award },
         { label: 'Attorney & Staff Reports', to: '/reports/staff', icon: FileSpreadsheet },
         { label: 'Matter & Practice Reports', to: '/reports/matters', icon: FolderOpen },
         { label: 'Financial & Billing Reports', to: '/reports/financial', icon: CreditCard },
         { label: 'User Management', to: '/settings/users', icon: Users },
         { label: 'Roles & Permissions', to: '/settings/roles', icon: UserCheck },
         { label: 'Templates & Workflows', to: '/settings/templates', icon: FileText },
+        { label: 'Workflow Configurator', to: '/settings/workflows', icon: Layers },
         { label: 'Integrations & Cloud', to: '/settings/integrations', icon: Database },
         { label: 'Firm Branding', to: '/settings/branding', icon: SlidersHorizontal },
         { label: 'Notifications', to: '/settings/notifications', icon: Bell },
@@ -275,9 +275,8 @@ export function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-[#06244B] border-r border-[#0B356D] flex flex-col ${
-        collapsed ? 'w-20' : 'w-64 lg:w-72'
-      }`}
+      className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-[#06244B] border-r border-[#0B356D] flex flex-col ${collapsed ? 'w-20' : 'w-64 lg:w-72'
+        }`}
     >
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-[#0B356D] bg-[#041833] flex-shrink-0">
@@ -331,10 +330,9 @@ export function Sidebar({ collapsed, setCollapsed }) {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-150 group cursor-pointer ${
-                      isActive
-                        ? 'bg-[#A4432B] text-white shadow-sm font-semibold'
-                        : 'text-[#B8C0C4] hover:bg-white/10 hover:text-white'
+                    `flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-150 group cursor-pointer ${isActive
+                      ? 'bg-[#A4432B] text-white shadow-sm font-semibold'
+                      : 'text-[#B8C0C4] hover:bg-white/10 hover:text-white'
                     } ${collapsed ? 'justify-center' : ''}`
                   }
                 >
@@ -359,11 +357,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
               <button
                 type="button"
                 onClick={() => toggleSubmenu(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-150 text-left group cursor-pointer ${
-                  isSubActive
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-150 text-left group cursor-pointer ${isSubActive
                     ? 'text-white bg-white/10 font-semibold'
                     : 'text-[#B8C0C4] hover:bg-white/5 hover:text-white'
-                } ${collapsed ? 'justify-center' : ''}`}
+                  } ${collapsed ? 'justify-center' : ''}`}
                 title={collapsed ? item.label : undefined}
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 ${isSubActive ? 'text-[#A4432B]' : ''}`} />
@@ -402,11 +399,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
                           <button
                             type="button"
                             onClick={(e) => toggleSubgroup(sub.id, e)}
-                            className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded transition-all duration-150 text-left cursor-pointer ${
-                              hasActiveChild
+                            className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded transition-all duration-150 text-left cursor-pointer ${hasActiveChild
                                 ? 'text-white bg-white/10 font-semibold'
                                 : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
-                            }`}
+                              }`}
                           >
                             <GroupIcon className={`w-3.5 h-3.5 flex-shrink-0 ${hasActiveChild ? 'text-[#A4432B]' : 'opacity-80'}`} />
                             <span className="flex-1 truncate">{sub.label}</span>
@@ -432,11 +428,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
                                       <button
                                         type="button"
                                         onClick={(e) => toggleSubgroup(nested.id, e)}
-                                        className={`w-full flex items-center gap-2 px-2 py-1.5 text-[11px] rounded transition-all duration-150 text-left cursor-pointer ${
-                                          hasDeepActiveChild
+                                        className={`w-full flex items-center gap-2 px-2 py-1.5 text-[11px] rounded transition-all duration-150 text-left cursor-pointer ${hasDeepActiveChild
                                             ? 'text-white bg-[#A4432B]/30 font-semibold'
                                             : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
-                                        }`}
+                                          }`}
                                       >
                                         <DeepIcon className={`w-3.5 h-3.5 flex-shrink-0 ${hasDeepActiveChild ? 'text-[#A4432B]' : 'opacity-80'}`} />
                                         <span className="flex-1 truncate">{nested.label}</span>
@@ -461,10 +456,9 @@ export function Sidebar({ collapsed, setCollapsed }) {
                                                 key={dIdx}
                                                 to={deep.to}
                                                 className={({ isActive }) =>
-                                                  `flex items-center gap-2 px-2 py-1.5 text-[11px] rounded transition-all duration-150 ${
-                                                    isActive
-                                                      ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
-                                                      : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
+                                                  `flex items-center gap-2 px-2 py-1.5 text-[11px] rounded transition-all duration-150 ${isActive
+                                                    ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
+                                                    : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
                                                   }`
                                                 }
                                               >
@@ -485,10 +479,9 @@ export function Sidebar({ collapsed, setCollapsed }) {
                                     key={nIdx}
                                     to={nested.to}
                                     className={({ isActive }) =>
-                                      `flex items-center gap-2 px-2.5 py-1.5 text-[11px] rounded transition-all duration-150 ${
-                                        isActive
-                                          ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
-                                          : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
+                                      `flex items-center gap-2 px-2.5 py-1.5 text-[11px] rounded transition-all duration-150 ${isActive
+                                        ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
+                                        : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
                                       }`
                                     }
                                   >
@@ -509,10 +502,9 @@ export function Sidebar({ collapsed, setCollapsed }) {
                         key={sIdx}
                         to={sub.to}
                         className={({ isActive }) =>
-                          `flex items-center gap-2.5 px-3 py-2 text-xs rounded transition-all duration-150 ${
-                            isActive
-                              ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
-                              : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
+                          `flex items-center gap-2.5 px-3 py-2 text-xs rounded transition-all duration-150 ${isActive
+                            ? 'bg-[#A4432B] text-white font-semibold shadow-xs'
+                            : 'text-[#B8C0C4] hover:text-white hover:bg-white/5'
                           }`
                         }
                       >
@@ -566,11 +558,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
                                             <NavLink
                                               key={dIdx}
                                               to={deep.to}
-                                              className={`flex items-center gap-2 px-2 py-1 text-xs rounded transition-colors ${
-                                                isDeepActive
+                                              className={`flex items-center gap-2 px-2 py-1 text-xs rounded transition-colors ${isDeepActive
                                                   ? 'bg-[#A4432B] text-white font-semibold'
                                                   : 'text-[#B8C0C4] hover:text-white hover:bg-white/10'
-                                              }`}
+                                                }`}
                                             >
                                               <DeepIcon className="w-3 h-3 flex-shrink-0 opacity-80" />
                                               <span className="truncate">{deep.label}</span>
@@ -587,11 +578,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
                                   <NavLink
                                     key={nIdx}
                                     to={nested.to}
-                                    className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded transition-colors ${
-                                      isNestedActive
+                                    className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded transition-colors ${isNestedActive
                                         ? 'bg-[#A4432B] text-white font-semibold'
                                         : 'text-[#B8C0C4] hover:text-white hover:bg-white/10'
-                                    }`}
+                                      }`}
                                   >
                                     <NestedIcon className="w-3.5 h-3.5 flex-shrink-0 opacity-80" />
                                     <span className="truncate">{nested.label}</span>
@@ -609,11 +599,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
                         <NavLink
                           key={sIdx}
                           to={sub.to}
-                          className={`flex items-center gap-2.5 px-3 py-2 text-xs transition-colors ${
-                            isSubCurrent
+                          className={`flex items-center gap-2.5 px-3 py-2 text-xs transition-colors ${isSubCurrent
                               ? 'bg-[#A4432B] text-white font-semibold'
                               : 'text-[#B8C0C4] hover:text-white hover:bg-white/10'
-                          }`}
+                            }`}
                         >
                           <SubIcon className="w-3.5 h-3.5 flex-shrink-0 opacity-80" />
                           <span className="flex-1 truncate">{sub.label}</span>
