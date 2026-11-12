@@ -380,3 +380,4 @@ export const getWorkflowForPracticeArea = (practiceAreaName) => {
     PRACTICE_AREA_WORKFLOWS['Civil Litigation & Dispute Resolution']
   );
 };
+
