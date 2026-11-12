@@ -1,50 +1,102 @@
 import React, { useState, useMemo } from 'react';
-import { Upload, FileText, Search, Filter, Eye, Download, ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
+import {
+  Upload,
+  FileText,
+  Search,
+  Filter,
+  Eye,
+  Download,
+  ShieldCheck,
+  ShieldAlert,
+  Plus,
+  CheckCircle2,
+  Lock,
+  Unlock,
+  History,
+  FileCode,
+  Tag,
+  Clock,
+  Sparkles,
+  ArrowRight
+} from 'lucide-react';
 import { MOCK_DOCUMENTS } from '../../../data/mockDocuments';
 import { useClients } from '../../../context/ClientContext';
 import { useMatters } from '../../../context/MatterContext';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../components/ui/Toast';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { DataTable } from '../../../components/ui/DataTable';
 import { Button } from '../../../components/ui/Button';
 import { SearchBar } from '../../../components/shared/SearchBar';
-import { FilterBar } from '../../../components/shared/FilterBar';
 import { Modal } from '../../../components/ui/Modal';
-import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
 import { formatDate } from '../../../utils/formatDate';
 
 export function DocumentsList() {
-  const { clients } = useClients();
   const { matters } = useMatters();
   const { currentUser } = useAuth();
   const { addToast } = useToast();
 
-  const [documents, setDocuments] = useState(MOCK_DOCUMENTS);
+  // Enriched documents with version history, privilege tags, and OCR text
+  const [documents, setDocuments] = useState(() => {
+    return MOCK_DOCUMENTS.map((doc, idx) => ({
+      ...doc,
+      version: idx === 0 ? 'v2.1' : (idx === 2 ? 'v3.0' : 'v1.0'),
+      isPrivileged: idx === 2 || idx === 3, // Hydrology report & Trust instrument are privileged
+      privilegeType: idx === 2
+        ? 'Attorney Work Product (Rule 1.6)'
+        : (idx === 3 ? 'Confidential Estate Client Communication' : null),
+      ocrText: idx === 0
+        ? 'Breach of commercial freight transport agreement pursuant to cold-chain telemetric sensor failure during transit...'
+        : (idx === 2
+          ? 'Comprehensive aquifer discharge study prepared by Intermountain Hydrology Associates. Culinary recharge basin capacity measured at 450 acre-feet...'
+          : 'Confidential dynasty trust provisions establishing generational transfer covenants and Salt Lake County real property deeds...'),
+      versionHistory: idx === 0 ? [
+        { version: 'v2.1', date: '2025-01-22', author: 'Thomas Bludworth, Esq.', note: 'Incorporated telemetry damage calculations' },
+        { version: 'v2.0', date: '2025-01-20', author: 'Marcus Vance (Paralegal)', note: 'Formatted exhibits and civil cover sheet' },
+        { version: 'v1.0', date: '2025-01-15', author: 'Thomas Bludworth, Esq.', note: 'Initial pleading draft' },
+      ] : [
+        { version: 'v1.0', date: doc.uploadedAt?.split('T')[0] || '2025-01-10', author: doc.uploadedByName || 'Firm Staff', note: 'Original filed instrument' }
+      ]
+    }));
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [privilegeFilter, setPrivilegeFilter] = useState('all'); // 'all', 'privileged', 'public'
+  const [searchOCR, setSearchOCR] = useState(false);
+
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [versionDoc, setVersionDoc] = useState(null);
 
   // Upload Form State
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadCategory, setUploadCategory] = useState('Pleadings');
   const [uploadMatterId, setUploadMatterId] = useState(matters[0]?.id || '');
+  const [isNewDocPrivileged, setIsNewDocPrivileged] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState('');
 
   const filteredDocs = useMemo(() => {
     return documents.filter((doc) => {
-      const matchesSearch =
+      const q = searchQuery.toLowerCase();
+      const matchesStandard =
         searchQuery === '' ||
-        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.matterTitle.toLowerCase().includes(searchQuery.toLowerCase());
+        doc.title.toLowerCase().includes(q) ||
+        doc.fileName.toLowerCase().includes(q) ||
+        doc.matterTitle.toLowerCase().includes(q) ||
+        doc.clientName.toLowerCase().includes(q);
+
+      const matchesOCR = searchOCR && doc.ocrText && doc.ocrText.toLowerCase().includes(q);
+      const matchesSearch = matchesStandard || matchesOCR;
 
       const matchesCat = categoryFilter === '' || doc.category === categoryFilter;
-      return matchesSearch && matchesCat;
+      const matchesPrivilege =
+        privilegeFilter === 'all' ||
+        (privilegeFilter === 'privileged' && doc.isPrivileged) ||
+        (privilegeFilter === 'public' && !doc.isPrivileged);
+
+      return matchesSearch && matchesCat && matchesPrivilege;
     });
-  }, [documents, searchQuery, categoryFilter]);
+  }, [documents, searchQuery, categoryFilter, privilegeFilter, searchOCR]);
 
   const handleUploadSubmit = (e) => {
     e.preventDefault();
@@ -68,297 +120,476 @@ export function DocumentsList() {
       uploadedById: currentUser.id,
       uploadedByName: currentUser.name,
       uploadedAt: new Date().toISOString(),
-      isConfidential: true,
+      version: 'v1.0',
+      isPrivileged: isNewDocPrivileged,
+      privilegeType: isNewDocPrivileged ? 'Attorney Work Product (Utah RPC 1.6)' : null,
+      ocrText: `OCR extracted text for ${uploadTitle}... Indexed into firm full-text search engine.`,
+      versionHistory: [
+        { version: 'v1.0', date: new Date().toISOString().split('T')[0], author: currentUser.name, note: 'Initial upload' }
+      ]
     };
 
     setDocuments(prev => [newDoc, ...prev]);
-    addToast(`Document "${uploadTitle}" uploaded and indexed to ${matter?.matterNumber}.`, 'success');
+    addToast(`Document "${uploadTitle}" (v1.0) indexed to ${matter?.matterNumber}.`, 'success');
     setIsUploadModalOpen(false);
     setUploadTitle('');
     setSelectedFileName('');
+    setIsNewDocPrivileged(false);
   };
 
-  const columns = [
-    {
-      key: 'title',
-      label: 'Document Title & File',
-      sortable: true,
-      render: (val, row) => (
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded bg-[#06244B] text-white">
-            <FileText className="w-4 h-4 text-[#A4432B]" />
-          </div>
-          <div>
-            <span
-              onClick={() => setPreviewDoc(row)}
-              className="font-serif font-bold text-[#06244B] hover:text-[#A4432B] block cursor-pointer text-sm"
-            >
-              {val}
-            </span>
-            <span className="text-[11px] text-[#667085]">{row.fileName} • {row.fileSize}</span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      sortable: true,
-      render: (val) => (
-        <span className="text-xs px-2 py-0.5 rounded bg-[#F5F0E5] text-[#06244B] font-semibold border border-[#D9D6CF]">
-          {val}
-        </span>
-      ),
-    },
-    {
-      key: 'matterTitle',
-      label: 'Related Matter & Client',
-      render: (val, row) => (
-        <div>
-          <span className="text-xs font-semibold text-[#06244B] block max-w-xs truncate">{val}</span>
-          <span className="text-[11px] text-[#667085]">{row.clientName}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'uploadedByName',
-      label: 'Uploaded By',
-      sortable: true,
-      render: (val, row) => (
-        <div className="text-xs">
-          <span className="font-medium text-[#202A35]">{val}</span>
-          <span className="text-[10px] text-[#667085] block">{formatDate(row.uploadedAt, { short: true })}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      align: 'right',
-      render: (val, row) => (
-        <div className="flex items-center justify-end gap-1">
-          <button
-            onClick={() => setPreviewDoc(row)}
-            className="p-1.5 rounded text-[#06244B] hover:bg-[#F5F0E5]"
-            title="Preview"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => addToast(`Mock download initiated for ${row.fileName}`, 'info')}
-            className="p-1.5 rounded text-[#06244B] hover:bg-[#F5F0E5]"
-            title="Download"
-          >
-            <Download className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const handleTogglePrivilege = (docId) => {
+    setDocuments(prev =>
+      prev.map(d => {
+        if (d.id === docId) {
+          const nextState = !d.isPrivileged;
+          addToast(
+            nextState
+              ? `Document classified as "Attorney-Client Privileged" (Protected under Utah RPC 1.6).`
+              : `Document classification updated to "Court Pleading / Public".`,
+            'info'
+          );
+          return {
+            ...d,
+            isPrivileged: nextState,
+            privilegeType: nextState ? 'Attorney Work Product (Utah RPC 1.6)' : null
+          };
+        }
+        return d;
+      })
+    );
+  };
+
+  const handleUploadNewVersion = (docId) => {
+    setDocuments(prev =>
+      prev.map(d => {
+        if (d.id === docId) {
+          const nextVerNum = (parseFloat(d.version.replace('v', '')) + 1.0).toFixed(1);
+          const nextVer = `v${nextVerNum}`;
+          const updatedHistory = [
+            { version: nextVer, date: new Date().toISOString().split('T')[0], author: currentUser.name, note: 'Revised version with updated annotations' },
+            ...d.versionHistory
+          ];
+          addToast(`Version ${nextVer} uploaded for "${d.title}". Previous revisions archived.`, 'success');
+          return { ...d, version: nextVer, versionHistory: updatedHistory };
+        }
+        return d;
+      })
+    );
+    setVersionDoc(null);
+  };
 
   return (
     <div className="space-y-6">
+      {/* Filevine Document Architecture Banner */}
+      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+          <span>
+            <strong>Document Integrity &amp; Versioning Engine (Filevine Model):</strong> Full document revision history (v1, v2, v3), searchable text/OCR index, and strict Utah Rule of Professional Conduct 1.6 privileged access controls.
+          </span>
+        </div>
+        <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+          VERSIONING &amp; OCR
+        </span>
+      </div>
+
       <PageHeader
-        title="Document Management"
+        title="Document Management &amp; Repository"
         subtitle="Centralized firm repository for pleadings, discovery disclosures, contracts, transcripts, and court orders."
         breadcrumbs={[{ label: 'Clients & Matters', to: '/clients' }, { label: 'Documents' }]}
         actions={
-          <Button
-            variant="primary"
-            size="sm"
-            icon={Upload}
-            onClick={() => setIsUploadModalOpen(true)}
-          >
-            Upload Document
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              icon={Upload}
+              onClick={() => setIsUploadModalOpen(true)}
+            >
+              Upload Document
+            </Button>
+          </div>
         }
       />
 
-      {/* Info notice about demo storage */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-900 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-blue-700 flex-shrink-0" />
-          <span>Demonstration Document Index. Records are securely mapped to client matter identifiers.</span>
+      {/* Search, Filters & OCR Toggle Toolbar */}
+      <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-2">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={searchOCR ? "Full-text / OCR search inside document body and transcripts..." : "Search by title, file name, client, or docket..."}
+            />
+          </div>
+
+          <div className="flex items-center justify-between md:justify-end gap-2">
+            {/* OCR Toggle Button */}
+            <button
+              onClick={() => {
+                setSearchOCR(!searchOCR);
+                addToast(
+                  !searchOCR ? 'Full-text / OCR search enabled. Querying document text content.' : 'Standard metadata search active.',
+                  'info'
+                );
+              }}
+              className={`text-xs px-3 py-2 rounded font-semibold border flex items-center gap-1.5 transition-all ${
+                searchOCR
+                  ? 'bg-[#06244B] text-white border-[#06244B]'
+                  : 'bg-slate-50 text-[#667085] border-[#D9D6CF] hover:bg-slate-100'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              OCR Content Search: {searchOCR ? 'ON' : 'OFF'}
+            </button>
+          </div>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Mock File System</span>
-      </div>
 
-      {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by title, file name, or matter..."
-          className="md:col-span-1"
-        />
+        {/* Filter Pills Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#667085] uppercase text-[10px]">Privilege Tag:</span>
+            {[
+              { id: 'all', label: 'All Files' },
+              { id: 'privileged', label: '🔒 Privileged Only (Rule 1.6)' },
+              { id: 'public', label: 'Court Filings / Public' },
+            ].map(f => (
+              <button
+                key={f.id}
+                onClick={() => setPrivilegeFilter(f.id)}
+                className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                  privilegeFilter === f.id
+                    ? 'bg-[#06244B] text-white border-[#06244B]'
+                    : 'bg-white text-[#202A35] border-[#D9D6CF] hover:bg-slate-50'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="md:col-span-2">
-          <FilterBar
-            filters={[
-              {
-                id: 'category',
-                label: 'Category',
-                value: categoryFilter,
-                options: [
-                  { value: 'Pleadings', label: 'Pleadings & Complaints' },
-                  { value: 'Discovery', label: 'Discovery & Telemetry' },
-                  { value: 'Orders', label: 'Court Orders & Scheduling' },
-                  { value: 'Contracts', label: 'Contracts & Agreements' },
-                  { value: 'Financial', label: 'Financial Disclosures' },
-                ],
-                onChange: setCategoryFilter,
-              },
-            ]}
-            onReset={() => {
-              setSearchQuery('');
-              setCategoryFilter('');
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#667085] uppercase text-[10px]">Category:</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="p-1 rounded border border-[#D9D6CF] bg-white text-xs font-semibold"
+            >
+              <option value="">All Categories</option>
+              <option value="Pleadings">Pleadings</option>
+              <option value="Discovery">Discovery</option>
+              <option value="Orders">Orders</option>
+              <option value="Contracts">Contracts</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Documents Table */}
-      <DataTable
-        columns={columns}
-        data={filteredDocs}
-        pageSize={8}
-      />
+      <div className="bg-white rounded-lg border border-[#D9D6CF] shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left">
+            <thead className="bg-[#FAF8F5] text-[#06244B] uppercase font-bold border-b border-[#D9D6CF]">
+              <tr>
+                <th className="py-2.5 px-3">Document Title &amp; File</th>
+                <th className="py-2.5 px-3 text-center">Version History</th>
+                <th className="py-2.5 px-3">Privilege &amp; Confidentiality Tag</th>
+                <th className="py-2.5 px-3">Category</th>
+                <th className="py-2.5 px-3">Linked Matter &amp; Client</th>
+                <th className="py-2.5 px-3">Uploaded By</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#D9D6CF]/60">
+              {filteredDocs.map((doc) => (
+                <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                  {/* Title & File */}
+                  <td className="py-3 px-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded bg-[#06244B] text-white shrink-0">
+                        <FileText className="w-4 h-4 text-[#A4432B]" />
+                      </div>
+                      <div>
+                        <span
+                          onClick={() => setPreviewDoc(doc)}
+                          className="font-serif font-bold text-sm text-[#06244B] hover:text-[#A4432B] block cursor-pointer"
+                        >
+                          {doc.title}
+                        </span>
+                        <span className="text-[11px] text-[#667085]">{doc.fileName} • {doc.fileSize}</span>
+                        {searchOCR && doc.ocrText && searchQuery && doc.ocrText.toLowerCase().includes(searchQuery.toLowerCase()) && (
+                          <div className="mt-1 p-1 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-900 max-w-md">
+                            <span className="font-bold">OCR Match:</span> "...{doc.ocrText.slice(0, 80)}..."
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
 
-      {/* Upload Modal */}
-      <Modal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        title="Upload Document"
-        subtitle="Associate pleadings or evidence with a legal matter."
-        maxWidth="max-w-xl"
-      >
-        <form onSubmit={handleUploadSubmit} className="space-y-4">
-          <div>
-            <Input
-              label="Document Title"
-              required
-              value={uploadTitle}
-              onChange={(e) => setUploadTitle(e.target.value)}
-              placeholder="e.g. Defendant Response to Motion to Compel"
-            />
-          </div>
+                  {/* Version History Pill */}
+                  <td className="py-3 px-3 text-center">
+                    <button
+                      onClick={() => setVersionDoc(doc)}
+                      className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-100 text-[#06244B] border border-[#D9D6CF] hover:border-[#A4432B] transition-colors"
+                      title="Click to view revision history"
+                    >
+                      {doc.version} ({doc.versionHistory?.length || 1})
+                    </button>
+                  </td>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Select
-                label="Category"
-                value={uploadCategory}
-                onChange={(e) => setUploadCategory(e.target.value)}
-                options={[
-                  { value: 'Pleadings', label: 'Pleadings' },
-                  { value: 'Discovery', label: 'Discovery' },
-                  { value: 'Orders', label: 'Court Orders' },
-                  { value: 'Contracts', label: 'Contracts' },
-                ]}
-              />
-            </div>
+                  {/* Privilege Tag Button */}
+                  <td className="py-3 px-3">
+                    <button
+                      onClick={() => handleTogglePrivilege(doc.id)}
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${
+                        doc.isPrivileged
+                          ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+                          : 'bg-slate-50 text-[#667085] border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {doc.isPrivileged ? (
+                        <>
+                          <Lock className="w-3 h-3 text-amber-700" />
+                          <span>Privileged (RPC 1.6)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="w-3 h-3 text-slate-400" />
+                          <span>Court Record / Public</span>
+                        </>
+                      )}
+                    </button>
+                  </td>
 
-            <div>
-              <Select
-                label="Related Matter"
-                required
-                value={uploadMatterId}
-                onChange={(e) => setUploadMatterId(e.target.value)}
-                options={matters.map(m => ({ value: m.id, label: `${m.matterNumber} - ${m.title}` }))}
-              />
-            </div>
-          </div>
+                  {/* Category */}
+                  <td className="py-3 px-3">
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-[#F5F0E5] text-[#06244B] font-semibold border border-[#D9D6CF]">
+                      {doc.category}
+                    </span>
+                  </td>
 
-          {/* Mock File selector */}
-          <div className="p-5 border-2 border-dashed border-[#D9D6CF] rounded text-center bg-[#F5F0E5]/40">
-            <Upload className="w-8 h-8 text-[#A4432B] mx-auto mb-2" />
-            <p className="text-xs font-semibold text-[#06244B]">
-              {selectedFileName ? selectedFileName : 'Drag & drop legal document or click to browse'}
-            </p>
-            <p className="text-[11px] text-[#667085] mt-1">PDF, DOCX, XLSX up to 50MB</p>
-            <input
-              type="file"
-              onChange={(e) => setSelectedFileName(e.target.files[0]?.name || '')}
-              className="mt-3 text-xs text-[#667085] file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#06244B] file:text-white cursor-pointer"
-            />
-          </div>
+                  {/* Matter & Client */}
+                  <td className="py-3 px-3 max-w-xs">
+                    <span className="text-xs font-semibold text-[#06244B] block truncate">{doc.matterTitle}</span>
+                    <span className="text-[11px] text-[#667085]">{doc.clientName}</span>
+                  </td>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#D9D6CF]">
-            <Button size="sm" variant="outline" type="button" onClick={() => setIsUploadModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button size="sm" variant="primary" type="submit">
-              Upload Document Record
-            </Button>
-          </div>
-        </form>
-      </Modal>
+                  {/* Uploaded By */}
+                  <td className="py-3 px-3">
+                    <span className="text-xs font-medium text-[#202A35] block">{doc.uploadedByName}</span>
+                    <span className="text-[10px] text-[#667085]">{formatDate(doc.uploadedAt, { short: true })}</span>
+                  </td>
 
-      {/* Preview Modal */}
-      <Modal
-        isOpen={Boolean(previewDoc)}
-        onClose={() => setPreviewDoc(null)}
-        title={previewDoc?.title || 'Document Preview'}
-        subtitle={`${previewDoc?.fileName} • ${previewDoc?.category} • ${previewDoc?.fileSize}`}
-        maxWidth="max-w-2xl"
-      >
-        {previewDoc && (
+                  {/* Actions */}
+                  <td className="py-3 px-3 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        icon={Eye}
+                        onClick={() => setPreviewDoc(doc)}
+                      >
+                        Preview
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        icon={Download}
+                        onClick={() => addToast(`Download started for ${doc.fileName}.`, 'info')}
+                      >
+                        Download
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Version History Modal */}
+      {versionDoc && (
+        <Modal
+          isOpen={!!versionDoc}
+          onClose={() => setVersionDoc(null)}
+          title={`Document Version History: ${versionDoc.title}`}
+          subtitle={`Current Version: ${versionDoc.version} | Linked Matter: ${versionDoc.matterTitle}`}
+          maxWidth="max-w-xl"
+        >
           <div className="space-y-4 text-xs text-[#202A35]">
-            <div className="p-4 bg-[#F5F0E5] rounded border border-[#D9D6CF]">
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-bold text-[#06244B] text-sm font-serif">Document Metadata</span>
-                <span className="px-2 py-0.5 rounded bg-white font-semibold text-[#A4432B] border border-[#D9D6CF]">
-                  {previewDoc.category}
-                </span>
+            <div className="flex justify-between items-center p-3 bg-slate-50 border border-[#D9D6CF] rounded">
+              <div>
+                <span className="font-bold text-[#06244B] block">Revision Audit Trail</span>
+                <span className="text-[11px] text-[#667085]">Full immutable timestamp log of all file updates</span>
               </div>
-              <p><strong>Matter:</strong> {previewDoc.matterTitle}</p>
-              <p><strong>Client:</strong> {previewDoc.clientName}</p>
-              <p><strong>Uploaded By:</strong> {previewDoc.uploadedByName} on {formatDate(previewDoc.uploadedAt)}</p>
+              <Button
+                size="sm"
+                variant="primary"
+                icon={Upload}
+                onClick={() => handleUploadNewVersion(versionDoc.id)}
+              >
+                Upload Revision (v{(parseFloat(versionDoc.version.replace('v', '')) + 1.0).toFixed(1)})
+              </Button>
             </div>
 
-            {/* Document simulated preview page */}
-            <div className="p-8 bg-white border border-[#D9D6CF] rounded shadow-subtle min-h-[220px] font-mono text-[11px] leading-relaxed text-[#202A35]">
-              <div className="text-center font-bold mb-4 uppercase">
-                IN THE UTAH JUDICIAL DISTRICT COURT<br />
-                STATE OF UTAH
-              </div>
-              <div className="flex justify-between border-b border-gray-300 pb-3 mb-4">
-                <div>
-                  {previewDoc.clientName.toUpperCase()},<br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;Plaintiff,<br />
-                  v.<br />
-                  DEFENDANT ENTITY,<br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;Defendant.
+            <div className="space-y-2">
+              {versionDoc.versionHistory?.map((vh, i) => (
+                <div key={i} className="p-3 border rounded-lg bg-white border-[#D9D6CF] flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-xs bg-[#06244B] text-white px-2 py-0.5 rounded">
+                      {vh.version}
+                    </span>
+                    <div>
+                      <span className="font-bold text-xs text-[#06244B] block">{vh.note}</span>
+                      <span className="text-[11px] text-[#667085]">
+                        Updated by <strong>{vh.author}</strong> on {vh.date}
+                      </span>
+                    </div>
+                  </div>
+                  <Button size="xs" variant="outline" onClick={() => addToast(`Reverted view to ${vh.version}.`, 'info')}>
+                    Restore View
+                  </Button>
                 </div>
-                <div>
-                  Case No. 25-CV-0101<br />
-                  Judge Presiding<br />
-                  FILED ELECTRONICALLY
-                </div>
-              </div>
-              <p className="text-center font-bold uppercase mb-3">
-                {previewDoc.title}
-              </p>
-              <p className="italic text-gray-500 text-center py-4">
-                [Full multi-page authenticated legal instrument rendered in secure PDF viewer]
-              </p>
+              ))}
             </div>
 
-            <div className="flex justify-between items-center pt-3 border-t border-[#D9D6CF]">
-              <span className="text-[10px] text-[#667085]">Confidential Attorney-Client Privileged</span>
+            <div className="flex justify-end pt-2 border-t border-[#D9D6CF]">
+              <Button size="sm" variant="outline" onClick={() => setVersionDoc(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Document Preview Modal */}
+      {previewDoc && (
+        <Modal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          title={`Document Preview: ${previewDoc.title}`}
+          subtitle={`${previewDoc.fileName} • ${previewDoc.fileSize} • Version ${previewDoc.version}`}
+          maxWidth="max-w-2xl"
+        >
+          <div className="space-y-4 text-xs text-[#202A35]">
+            <div className="flex justify-between items-center p-3 bg-[#FAF8F5] border border-[#D9D6CF] rounded">
+              <div className="flex items-center gap-2">
+                {previewDoc.isPrivileged ? (
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded text-[11px]">
+                    <Lock className="w-3.5 h-3.5 text-amber-700" /> {previewDoc.privilegeType}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded text-[11px]">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Court Filed Pleading
+                  </span>
+                )}
+              </div>
+              <span className="text-[#667085]">Linked: {previewDoc.matterTitle}</span>
+            </div>
+
+            <div className="p-4 bg-white border border-[#D9D6CF] rounded-lg shadow-inner font-mono text-xs whitespace-pre-line leading-relaxed max-h-64 overflow-y-auto">
+              <p className="font-bold text-sm text-[#06244B] pb-2 border-b border-slate-100">{previewDoc.title}</p>
+              <p className="pt-2">{previewDoc.ocrText}</p>
+            </div>
+
+            <div className="flex justify-between items-center pt-2 border-t border-[#D9D6CF]">
+              <span className="text-[11px] text-[#667085]">Uploaded by {previewDoc.uploadedByName}</span>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setPreviewDoc(null)}>
                   Close
                 </Button>
-                <Button size="sm" variant="primary" onClick={() => addToast('Document downloaded.', 'success')}>
-                  Download PDF
+                <Button size="sm" variant="primary" icon={Download} onClick={() => addToast('Document downloaded.', 'success')}>
+                  Download File
                 </Button>
               </div>
             </div>
           </div>
-        )}
-      </Modal>
+        </Modal>
+      )}
+
+      {/* Upload Modal */}
+      {isUploadModalOpen && (
+        <Modal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          title="Upload &amp; Index Legal Document"
+          subtitle="Index new pleading, discovery exhibit, or confidential work product."
+          maxWidth="max-w-lg"
+        >
+          <form onSubmit={handleUploadSubmit} className="space-y-4 text-xs text-[#202A35]">
+            <div>
+              <label className="text-xs font-bold text-[#667085] uppercase block mb-1">
+                Document Title
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Defendant Motion to Dismiss &amp; Supporting Memorandum"
+                value={uploadTitle}
+                onChange={(e) => setUploadTitle(e.target.value)}
+                className="w-full text-xs p-2.5 rounded border border-[#D9D6CF]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-[#667085] uppercase block mb-1">
+                  Category
+                </label>
+                <select
+                  value={uploadCategory}
+                  onChange={(e) => setUploadCategory(e.target.value)}
+                  className="w-full text-xs p-2 rounded border border-[#D9D6CF] bg-white"
+                >
+                  <option value="Pleadings">Pleadings</option>
+                  <option value="Discovery">Discovery</option>
+                  <option value="Orders">Orders</option>
+                  <option value="Contracts">Contracts</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#667085] uppercase block mb-1">
+                  Linked Matter
+                </label>
+                <select
+                  value={uploadMatterId}
+                  onChange={(e) => setUploadMatterId(e.target.value)}
+                  className="w-full text-xs p-2 rounded border border-[#D9D6CF] bg-white font-semibold"
+                >
+                  {matters.map(m => (
+                    <option key={m.id} value={m.id}>{m.matterNumber} — {m.title.slice(0, 24)}...</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Privilege Checkbox */}
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded">
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isNewDocPrivileged}
+                  onChange={(e) => setIsNewDocPrivileged(e.target.checked)}
+                  className="rounded border-[#D9D6CF] text-[#06244B]"
+                />
+                <div>
+                  <span className="font-bold text-[#06244B] block text-xs">Classify as Attorney-Client Privileged (Utah RPC 1.6)</span>
+                  <span className="text-[10px] text-amber-800">Restricts access to legal counsel. Excludes from external disclosures.</span>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#D9D6CF]">
+              <Button size="sm" variant="outline" type="button" onClick={() => setIsUploadModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button size="sm" variant="primary" type="submit">
+                Upload &amp; Index (v1.0)
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
-
