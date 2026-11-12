@@ -313,17 +313,17 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
           subtitle="Preview dynamic merge variables, toggle conditional paragraphs, and export populated legal instruments."
           maxWidth="max-w-4xl"
         >
-          <div className="space-y-5 text-xs">
-            {/* Top Config Row: Matter Picker */}
-            <div className="bg-slate-50 p-4 rounded-lg border border-[#D9D6CF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-4 text-xs">
+            {/* Top Config Row: Responsive 2-Column Grid */}
+            <div className="bg-slate-50 p-3.5 rounded-lg border border-[#D9D6CF] grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
               <div>
                 <label className="text-[10px] uppercase font-bold text-[#667085] block mb-1">
-                  1. Select Target Legal Matter (Populates All Data)
+                  1. Target Matter (Auto-Fills Client &amp; Court Data)
                 </label>
                 <select
                   value={selectedMatterId}
                   onChange={(e) => setSelectedMatterId(e.target.value)}
-                  className="text-xs font-semibold p-2 rounded border border-[#D9D6CF] bg-white min-w-[280px]"
+                  className="w-full text-xs font-semibold p-2 rounded border border-[#D9D6CF] bg-white text-[#06244B] focus:outline-none focus:border-[#06244B]"
                 >
                   {matters.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -338,22 +338,22 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
                 <label className="text-[10px] uppercase font-bold text-[#667085] block mb-1">
                   2. Conditional Paragraph Toggles
                 </label>
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="inline-flex items-center gap-1.5 px-2 py-1 bg-white border border-[#D9D6CF] rounded cursor-pointer hover:bg-slate-100">
+                <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[#D9D6CF] rounded cursor-pointer hover:bg-slate-100 transition-colors shadow-xs">
                     <input
                       type="checkbox"
                       checked={enableArbitration}
                       onChange={(e) => setEnableArbitration(e.target.checked)}
-                      className="rounded border-[#D9D6CF] text-[#06244B]"
+                      className="rounded border-[#D9D6CF] text-[#06244B] focus:ring-[#06244B] h-3.5 w-3.5"
                     />
                     <span className="text-[11px] font-medium text-[#202A35]">Arbitration Clause</span>
                   </label>
-                  <label className="inline-flex items-center gap-1.5 px-2 py-1 bg-white border border-[#D9D6CF] rounded cursor-pointer hover:bg-slate-100">
+                  <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[#D9D6CF] rounded cursor-pointer hover:bg-slate-100 transition-colors shadow-xs">
                     <input
                       type="checkbox"
                       checked={enableIOLTAClause}
                       onChange={(e) => setEnableIOLTAClause(e.target.checked)}
-                      className="rounded border-[#D9D6CF] text-[#06244B]"
+                      className="rounded border-[#D9D6CF] text-[#06244B] focus:ring-[#06244B] h-3.5 w-3.5"
                     />
                     <span className="text-[11px] font-medium text-[#202A35]">IOLTA Replenishment</span>
                   </label>
@@ -361,10 +361,11 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
               </div>
             </div>
 
-            {/* Document Preview Area (Styled as Legal Instrument on Parchment) */}
-            <div>
-              <div className="flex items-center justify-between pb-1.5">
-                <span className="text-xs font-bold text-[#06244B]">
+            {/* Document Preview Area (Styled with comfortable max-height and clean scroll) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#06244B] flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-[#A4432B]" />
                   Live Populated Document Output:
                 </span>
                 <span className="text-[10px] text-emerald-800 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -372,17 +373,17 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
                 </span>
               </div>
 
-              <div className="p-6 bg-white border border-[#D9D6CF] rounded-lg shadow-inner max-h-96 overflow-y-auto font-mono text-xs whitespace-pre-line leading-relaxed text-[#202A35]">
+              <div className="p-4 sm:p-5 bg-white border border-[#D9D6CF] rounded-lg shadow-inner max-h-60 sm:max-h-72 overflow-y-auto font-mono text-[11px] sm:text-xs whitespace-pre-line leading-relaxed text-[#202A35]">
                 {getPopulatedText()}
               </div>
             </div>
 
-            {/* Modal Actions */}
+            {/* Modal Actions Footer */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#D9D6CF]">
               <span className="text-[11px] text-[#667085]">
                 Variables auto-mapped: <strong>{"{{Client}}, {{Court}}, {{OpposingParty}}, {{Rates}}"}</strong>
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <Button size="sm" variant="outline" onClick={() => setSelectedTemplate(null)}>
                   Close
                 </Button>
@@ -403,7 +404,7 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
                     addToast('Print dialog launched for legal instrument.', 'info');
                   }}
                 >
-                  Print Legal Instrument
+                  Print Instrument
                 </Button>
               </div>
             </div>
