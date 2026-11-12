@@ -30,6 +30,9 @@ export default defineConfig({
           if (id.includes('src/features/bankruptcy')) {
             return 'bankruptcy';
           }
+          if (id.includes('src/features/personal-injury')) {
+            return 'personal-injury';
+          }
         },
       },
     },

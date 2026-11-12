@@ -34,6 +34,17 @@ import { UtahExemptionsTool } from '../features/bankruptcy/pages/UtahExemptionsT
 import { Chapter13PlanCalculator } from '../features/bankruptcy/pages/Chapter13PlanCalculator';
 import { CreditorMatrixGenerator } from '../features/bankruptcy/pages/CreditorMatrixGenerator';
 
+// Specialty Practice: Personal Injury & Wrongful Death Workspace
+import { PIDashboard } from '../features/personal-injury/pages/PIDashboard';
+import { IncidentLiability } from '../features/personal-injury/pages/IncidentLiability';
+import { ClientDamages } from '../features/personal-injury/pages/ClientDamages';
+import { InsuranceManagement } from '../features/personal-injury/pages/InsuranceManagement';
+import { MedicalTreatment } from '../features/personal-injury/pages/MedicalTreatment';
+import { VendorAssignments } from '../features/personal-injury/pages/VendorAssignments';
+import { DemandPackages } from '../features/personal-injury/pages/DemandPackages';
+import { LienRegister } from '../features/personal-injury/pages/LienRegister';
+import { SettlementCalculator as PISettlementCalculator } from '../features/personal-injury/pages/SettlementCalculator';
+
 // Module 3: Tasks & Activities
 import { MyTasks } from '../features/tasks/pages/MyTasks';
 import { TeamTasks } from '../features/tasks/pages/TeamTasks';
@@ -222,6 +233,47 @@ export const router = createBrowserRouter([
             <CreditorMatrixGenerator />
           </RoleRoute>
         ),
+      },
+      // Specialty Practice: Personal Injury & Wrongful Death Workspace
+      {
+        path: 'personal-injury',
+        element: <Navigate to="/personal-injury/dashboard" replace />,
+      },
+      {
+        path: 'personal-injury/dashboard',
+        element: <PIDashboard />,
+      },
+      {
+        path: 'personal-injury/incident-liability',
+        element: <IncidentLiability />,
+      },
+      {
+        path: 'personal-injury/client-damages',
+        element: <ClientDamages />,
+      },
+      {
+        path: 'personal-injury/insurance',
+        element: <InsuranceManagement />,
+      },
+      {
+        path: 'personal-injury/medical-treatment',
+        element: <MedicalTreatment />,
+      },
+      {
+        path: 'personal-injury/vendor-assignments',
+        element: <VendorAssignments />,
+      },
+      {
+        path: 'personal-injury/demand-packages',
+        element: <DemandPackages />,
+      },
+      {
+        path: 'personal-injury/lien-register',
+        element: <LienRegister />,
+      },
+      {
+        path: 'personal-injury/settlement-calculator',
+        element: <PISettlementCalculator />,
       },
       // Module 3: Tasks & Activities
       {

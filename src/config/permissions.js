@@ -467,6 +467,17 @@ export const ROUTE_PERMISSIONS = {
   '/bankruptcy/plan': PERMISSIONS.MATTERS_VIEW,
   '/bankruptcy/creditor-matrix': PERMISSIONS.MATTERS_VIEW,
 
+  '/personal-injury': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/dashboard': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/incident-liability': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/client-damages': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/insurance': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/medical-treatment': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/vendor-assignments': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/demand-packages': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/lien-register': PERMISSIONS.MATTERS_VIEW,
+  '/personal-injury/settlement-calculator': PERMISSIONS.MATTERS_VIEW,
+
   '/tasks': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/mine': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/team': PERMISSIONS.TASKS_VIEW_TEAM,
