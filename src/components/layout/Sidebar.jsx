@@ -30,7 +30,8 @@ import {
   Database,
   Sparkles,
   Bell,
-  Scale
+  Scale,
+  Calculator
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -125,6 +126,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
         { label: 'Chart of Accounts', to: '/billing/chart-of-accounts', icon: Landmark },
         { label: 'General Ledger', to: '/billing/general-ledger', icon: FileSpreadsheet },
         { label: '3-Way Reconciliation', to: '/billing/reconciliation', icon: Scale },
+        { label: 'Settlement Calculator', to: '/billing/settlements', icon: Calculator },
       ],
     },
     {
