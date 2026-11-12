@@ -142,6 +142,10 @@ export const router = createBrowserRouter([
       },
       // Phase 2: Specialty Practice - Immigration
       {
+        path: 'immigration',
+        element: <Navigate to="/immigration/cases" replace />,
+      },
+      {
         path: 'immigration/cases',
         element: <ImmigrationCasesList />,
       },
@@ -170,6 +174,10 @@ export const router = createBrowserRouter([
         element: <MultilingualQuestionnaires />,
       },
       // Phase 2: Specialty Practice - Bankruptcy
+      {
+        path: 'bankruptcy',
+        element: <Navigate to="/bankruptcy/cases" replace />,
+      },
       {
         path: 'bankruptcy/cases',
         element: <BankruptcyCasesList />,
@@ -369,6 +377,10 @@ export const router = createBrowserRouter([
         element: <Navigate to="/billing/reconciliation" replace />,
       },
       // Module 5: Reports & Settings
+      {
+        path: 'reports',
+        element: <Navigate to="/reports/matters" replace />,
+      },
       {
         path: 'reports/staff',
         element: (
