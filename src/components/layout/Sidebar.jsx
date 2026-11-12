@@ -36,7 +36,8 @@ import {
   Activity,
   Shield,
   Stethoscope,
-  DollarSign
+  DollarSign,
+  Gavel
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -79,6 +80,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
         personalInjury: true,
       }));
     } else if (
+      location.pathname.startsWith('/litigation') ||
       location.pathname.startsWith('/immigration') ||
       location.pathname.startsWith('/bankruptcy')
     ) {
@@ -154,6 +156,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
           icon: Scale,
           isGroup: true,
           nestedItems: [
+            { label: 'Litigation Docket (Sec 3-8)', to: '/litigation/dashboard', icon: Gavel },
             { label: 'Immigration Docket', to: '/immigration/cases', icon: Globe },
             { label: 'Bankruptcy Docket', to: '/bankruptcy/cases', icon: Landmark },
             {

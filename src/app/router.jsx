@@ -45,6 +45,14 @@ import { DemandPackages } from '../features/personal-injury/pages/DemandPackages
 import { LienRegister } from '../features/personal-injury/pages/LienRegister';
 import { SettlementCalculator as PISettlementCalculator } from '../features/personal-injury/pages/SettlementCalculator';
 
+// Specialty Practice: Civil & Commercial Litigation Workspace (Sections 3-8)
+import { LitigationDashboard } from '../features/litigation/pages/LitigationDashboard';
+import { CaseAssessment } from '../features/litigation/pages/CaseAssessment';
+import { PleadingsService } from '../features/litigation/pages/PleadingsService';
+import { CourtScheduling } from '../features/litigation/pages/CourtScheduling';
+import { DiscoveryManagement } from '../features/litigation/pages/DiscoveryManagement';
+import { TrialNotebook } from '../features/litigation/pages/TrialNotebook';
+
 // Module 3: Tasks & Activities
 import { MyTasks } from '../features/tasks/pages/MyTasks';
 import { TeamTasks } from '../features/tasks/pages/TeamTasks';
@@ -275,6 +283,36 @@ export const router = createBrowserRouter([
         path: 'personal-injury/settlement-calculator',
         element: <PISettlementCalculator />,
       },
+      // Specialty Practice: Civil & Commercial Litigation Workspace (Sections 3-8)
+      {
+        path: 'litigation',
+        element: <Navigate to="/litigation/dashboard" replace />,
+      },
+      {
+        path: 'litigation/dashboard',
+        element: <LitigationDashboard />,
+      },
+      {
+        path: 'litigation/assessment',
+        element: <CaseAssessment />,
+      },
+      {
+        path: 'litigation/pleadings-service',
+        element: <PleadingsService />,
+      },
+      {
+        path: 'litigation/scheduling',
+        element: <CourtScheduling />,
+      },
+      {
+        path: 'litigation/discovery',
+        element: <DiscoveryManagement />,
+      },
+      {
+        path: 'litigation/trial',
+        element: <TrialNotebook />,
+      },
+
       // Module 3: Tasks & Activities
       {
         path: 'tasks',

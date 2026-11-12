@@ -232,10 +232,11 @@ export function BankruptcyCasesList() {
           <button
             type="button"
             onClick={() => handleOpenEcfModal(cases[0])}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#06244B] hover:bg-slate-100 font-bold text-xs shadow-sm transition-all cursor-pointer"
+            style={{ color: '#06244B', backgroundColor: '#FFFFFF' }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#06244B] hover:bg-slate-100 font-bold text-xs shadow-sm transition-all cursor-pointer border border-slate-200"
           >
-            <Download className="w-4 h-4 text-[#A4432B]" />
-            <span>Compile ECF Package</span>
+            <Download className="w-4 h-4" style={{ color: '#A4432B' }} />
+            <span style={{ color: '#06244B' }}>Compile ECF Package</span>
           </button>
         </div>
       </div>
