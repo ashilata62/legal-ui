@@ -478,6 +478,20 @@ export const ROUTE_PERMISSIONS = {
   '/personal-injury/lien-register': PERMISSIONS.MATTERS_VIEW,
   '/personal-injury/settlement-calculator': PERMISSIONS.MATTERS_VIEW,
 
+  '/litigation': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/dashboard': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/assessment': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/pleadings-service': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/scheduling': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/discovery': PERMISSIONS.MATTERS_VIEW,
+  '/litigation/trial': PERMISSIONS.MATTERS_VIEW,
+
+  '/probate': PERMISSIONS.MATTERS_VIEW,
+  '/family-law': PERMISSIONS.MATTERS_VIEW,
+  '/criminal': PERMISSIONS.MATTERS_VIEW,
+  '/appeals': PERMISSIONS.MATTERS_VIEW,
+  '/evictions': PERMISSIONS.MATTERS_VIEW,
+
   '/tasks': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/mine': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/team': PERMISSIONS.TASKS_VIEW_TEAM,

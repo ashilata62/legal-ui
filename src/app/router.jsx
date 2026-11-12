@@ -45,6 +45,21 @@ import { DemandPackages } from '../features/personal-injury/pages/DemandPackages
 import { LienRegister } from '../features/personal-injury/pages/LienRegister';
 import { SettlementCalculator as PISettlementCalculator } from '../features/personal-injury/pages/SettlementCalculator';
 
+// Specialty Practice: Civil & Commercial Litigation Workspace (Sections 3-8)
+import { LitigationDashboard } from '../features/litigation/pages/LitigationDashboard';
+import { CaseAssessment } from '../features/litigation/pages/CaseAssessment';
+import { PleadingsService } from '../features/litigation/pages/PleadingsService';
+import { CourtScheduling } from '../features/litigation/pages/CourtScheduling';
+import { DiscoveryManagement } from '../features/litigation/pages/DiscoveryManagement';
+import { TrialNotebook } from '../features/litigation/pages/TrialNotebook';
+
+// 5 Specialized Practice Workspaces (Sections 20-24)
+import { ProbateWorkspace } from '../features/specialty-practices/probate/pages/ProbateWorkspace';
+import { FamilyLawWorkspace } from '../features/specialty-practices/family-law/pages/FamilyLawWorkspace';
+import { CriminalWorkspace } from '../features/specialty-practices/criminal/pages/CriminalWorkspace';
+import { AppealsWorkspace } from '../features/specialty-practices/appeals/pages/AppealsWorkspace';
+import { EvictionsWorkspace } from '../features/specialty-practices/evictions/pages/EvictionsWorkspace';
+
 // Module 3: Tasks & Activities
 import { MyTasks } from '../features/tasks/pages/MyTasks';
 import { TeamTasks } from '../features/tasks/pages/TeamTasks';
@@ -275,6 +290,58 @@ export const router = createBrowserRouter([
         path: 'personal-injury/settlement-calculator',
         element: <PISettlementCalculator />,
       },
+      // Specialty Practice: Civil & Commercial Litigation Workspace (Sections 3-8)
+      {
+        path: 'litigation',
+        element: <Navigate to="/litigation/dashboard" replace />,
+      },
+      {
+        path: 'litigation/dashboard',
+        element: <LitigationDashboard />,
+      },
+      {
+        path: 'litigation/assessment',
+        element: <CaseAssessment />,
+      },
+      {
+        path: 'litigation/pleadings-service',
+        element: <PleadingsService />,
+      },
+      {
+        path: 'litigation/scheduling',
+        element: <CourtScheduling />,
+      },
+      {
+        path: 'litigation/discovery',
+        element: <DiscoveryManagement />,
+      },
+      {
+        path: 'litigation/trial',
+        element: <TrialNotebook />,
+      },
+
+      // 5 Specialized Practice Workspaces (Sections 20-24)
+      {
+        path: 'probate',
+        element: <ProbateWorkspace />,
+      },
+      {
+        path: 'family-law',
+        element: <FamilyLawWorkspace />,
+      },
+      {
+        path: 'criminal',
+        element: <CriminalWorkspace />,
+      },
+      {
+        path: 'appeals',
+        element: <AppealsWorkspace />,
+      },
+      {
+        path: 'evictions',
+        element: <EvictionsWorkspace />,
+      },
+
       // Module 3: Tasks & Activities
       {
         path: 'tasks',
