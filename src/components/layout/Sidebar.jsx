@@ -62,38 +62,22 @@ export function Sidebar({ collapsed, setCollapsed }) {
   });
 
   const [expandedSubgroups, setExpandedSubgroups] = useState({
-    practiceAreas:
-      location.pathname.startsWith('/immigration') ||
-      location.pathname.startsWith('/bankruptcy') ||
-      location.pathname.startsWith('/personal-injury'),
-    personalInjury: location.pathname.startsWith('/personal-injury'),
+    practiceAreas: false,
+    personalInjury: false,
   });
 
-  // Automatically keep menus and subgroups expanded based on current route
+  // Automatically keep parent menus expanded based on current route
   useEffect(() => {
-    if (location.pathname.startsWith('/personal-injury')) {
-      setExpandedMenus(prev => ({ ...prev, clients: true }));
-      setExpandedSubgroups(prev => ({
-        ...prev,
-        practiceAreas: true,
-        personalInjury: true,
-      }));
-    } else if (
-      location.pathname.startsWith('/immigration') ||
-      location.pathname.startsWith('/bankruptcy')
-    ) {
-      setExpandedMenus(prev => ({ ...prev, clients: true }));
-      setExpandedSubgroups(prev => ({
-        ...prev,
-        practiceAreas: true,
-      }));
-    } else if (
+    if (
       location.pathname.startsWith('/clients') ||
       location.pathname.startsWith('/matters') ||
       location.pathname.startsWith('/intake') ||
       location.pathname.startsWith('/documents') ||
       location.pathname.startsWith('/communications') ||
-      location.pathname.startsWith('/client-portal')
+      location.pathname.startsWith('/client-portal') ||
+      location.pathname.startsWith('/personal-injury') ||
+      location.pathname.startsWith('/immigration') ||
+      location.pathname.startsWith('/bankruptcy')
     ) {
       setExpandedMenus(prev => ({ ...prev, clients: true }));
     }
@@ -154,26 +138,9 @@ export function Sidebar({ collapsed, setCollapsed }) {
           icon: Scale,
           isGroup: true,
           nestedItems: [
+            { label: 'Personal Injury Docket', to: '/personal-injury/dashboard', icon: Activity },
             { label: 'Immigration Docket', to: '/immigration/cases', icon: Globe },
             { label: 'Bankruptcy Docket', to: '/bankruptcy/cases', icon: Landmark },
-            {
-              id: 'personalInjury',
-              label: 'Personal Injury',
-              icon: Activity,
-              badge: 'PI',
-              isGroup: true,
-              nestedItems: [
-                { label: 'PI Dashboard', to: '/personal-injury/dashboard', icon: LayoutDashboard },
-                { label: 'Incident & Liability', to: '/personal-injury/incident-liability', icon: ShieldAlert },
-                { label: 'Client & Damages', to: '/personal-injury/client-damages', icon: UserCheck },
-                { label: 'Insurance Management', to: '/personal-injury/insurance', icon: Shield },
-                { label: 'Medical Treatment & Records', to: '/personal-injury/medical-treatment', icon: Stethoscope },
-                { label: 'Vendor Assignments', to: '/personal-injury/vendor-assignments', icon: Briefcase },
-                { label: 'Demand Packages', to: '/personal-injury/demand-packages', icon: FileText },
-                { label: 'Lien Register', to: '/personal-injury/lien-register', icon: DollarSign },
-                { label: 'Settlement Calculator', to: '/personal-injury/settlement-calculator', icon: Calculator },
-              ],
-            },
           ],
         },
         { label: 'Intake & Conflicts', to: '/intake', icon: UserCheck },
@@ -279,8 +246,10 @@ export function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-[#06244B] border-r border-[#0B356D] flex flex-col ${collapsed ? 'w-20' : 'w-64 lg:w-72'
+      className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-[#06244B] border-r border-[#0B356D] flex flex-col overscroll-contain ${collapsed ? 'w-20' : 'w-64 lg:w-72'
         }`}
+      style={{ overscrollBehavior: 'contain' }}
+      onWheel={(e) => e.stopPropagation()}
     >
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-[#0B356D] bg-[#041833] flex-shrink-0">
@@ -317,7 +286,11 @@ export function Sidebar({ collapsed, setCollapsed }) {
       </div>
 
       {/* Nav Menus */}
-      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 text-sm font-medium">
+      <div
+        className="flex-1 overflow-y-auto overscroll-contain py-4 px-3 space-y-1 text-sm font-medium"
+        style={{ overscrollBehavior: 'contain' }}
+        onWheel={(e) => e.stopPropagation()}
+      >
         <div className={`px-2 py-1 text-[10px] font-semibold tracking-wider text-[#B8C0C4] uppercase ${collapsed ? 'text-center' : ''}`}>
           {collapsed ? '—' : 'Primary Menus (5 Only)'}
         </div>
