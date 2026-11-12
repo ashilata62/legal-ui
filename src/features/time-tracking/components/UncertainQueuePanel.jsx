@@ -7,6 +7,8 @@ import {
   Edit2,
   Clock,
   ShieldAlert,
+  Search,
+  RotateCcw
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
@@ -134,13 +136,16 @@ export function UncertainQueuePanel({
           </span>
         </div>
 
-        {/* Search & Status Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-          <div className="flex-1 max-w-md">
-            <SearchBar
+        {/* Unified Search & Status Filters */}
+        <div className="bg-[#F9FAFB] p-2.5 sm:p-3 rounded-xl border border-[#EAECF0] flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 absolute left-3 top-2 text-[#98A2B3]" />
+            <input
+              type="text"
               value={searchQuery}
-              onChange={setSearchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search uncertain client, matter, description, or reason..."
+              className="w-full pl-8.5 pr-3 py-1.5 text-xs bg-white border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] transition-all"
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -151,16 +156,30 @@ export function UncertainQueuePanel({
                   key={st || 'all'}
                   type="button"
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
                     active
-                      ? 'bg-[#06244B] text-white border-[#06244B]'
-                      : 'bg-white text-[#202A35] border-[#D9D6CF] hover:border-[#A4432B]'
+                      ? 'bg-[#06244B] text-white border-[#06244B] shadow-xs'
+                      : 'bg-white text-[#344054] border-[#D0D5DD] hover:bg-slate-50'
                   }`}
                 >
                   {st || 'All'}
                 </button>
               );
             })}
+            {(searchQuery || statusFilter) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('');
+                }}
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                title="Reset search and filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
