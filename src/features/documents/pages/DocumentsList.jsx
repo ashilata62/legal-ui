@@ -17,7 +17,8 @@ import {
   Tag,
   Clock,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  RotateCcw
 } from 'lucide-react';
 import { MOCK_DOCUMENTS } from '../../../data/mockDocuments';
 import { useClients } from '../../../context/ClientContext';
@@ -212,19 +213,24 @@ export function DocumentsList() {
       />
 
       {/* Search, Filters & OCR Toggle Toolbar */}
-      <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="md:col-span-2">
-            <SearchBar
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#EAECF0] shadow-sm space-y-3">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+          {/* Search Input */}
+          <div className="relative w-full md:flex-1">
+            <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-[#98A2B3]" />
+            <input
+              type="text"
               value={searchQuery}
-              onChange={setSearchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchOCR ? "Full-text / OCR search inside document body and transcripts..." : "Search by title, file name, client, or docket..."}
+              className="w-full pl-9 pr-3 py-2 text-xs bg-[#F9FAFB] border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] focus:bg-white transition-all"
             />
           </div>
 
-          <div className="flex items-center justify-between md:justify-end gap-2">
-            {/* OCR Toggle Button */}
+          {/* OCR Toggle */}
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
             <button
+              type="button"
               onClick={() => {
                 setSearchOCR(!searchOCR);
                 addToast(
@@ -232,47 +238,56 @@ export function DocumentsList() {
                   'info'
                 );
               }}
-              className={`text-xs px-3 py-2 rounded font-semibold border flex items-center gap-1.5 transition-all ${
+              className={`text-xs px-3 py-2 rounded-lg font-semibold border flex items-center gap-1.5 transition-all cursor-pointer ${
                 searchOCR
-                  ? 'bg-[#06244B] text-white border-[#06244B]'
-                  : 'bg-slate-50 text-[#667085] border-[#D9D6CF] hover:bg-slate-100'
+                  ? 'bg-[#06244B] text-white border-[#06244B] shadow-sm'
+                  : 'bg-[#F9FAFB] text-[#475467] border-[#D0D5DD] hover:bg-slate-100 hover:text-[#1D2939]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              OCR Content Search: {searchOCR ? 'ON' : 'OFF'}
+              <Sparkles className={`w-3.5 h-3.5 ${searchOCR ? 'text-amber-300' : 'text-[#667085]'}`} />
+              <span>OCR Content Search:</span>
+              <span className={`font-mono font-bold text-[10px] px-1.5 py-0.2 rounded ${searchOCR ? 'bg-amber-400/20 text-amber-200' : 'bg-slate-200 text-slate-700'}`}>
+                {searchOCR ? 'ON' : 'OFF'}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Filter Pills Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#667085] uppercase text-[10px]">Privilege Tag:</span>
+        {/* Filter Pills & Category Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#EAECF0] text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-[#475467] uppercase text-[10px] tracking-wider font-mono mr-1">Privilege Tag:</span>
             {[
               { id: 'all', label: 'All Files' },
-              { id: 'privileged', label: '🔒 Privileged Only (Rule 1.6)' },
-              { id: 'public', label: 'Court Filings / Public' },
-            ].map(f => (
-              <button
-                key={f.id}
-                onClick={() => setPrivilegeFilter(f.id)}
-                className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
-                  privilegeFilter === f.id
-                    ? 'bg-[#06244B] text-white border-[#06244B]'
-                    : 'bg-white text-[#202A35] border-[#D9D6CF] hover:bg-slate-50'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+              { id: 'privileged', label: 'Privileged Only (Rule 1.6)', icon: Lock },
+              { id: 'public', label: 'Court Filings / Public', icon: Unlock },
+            ].map(f => {
+              const Icon = f.icon;
+              const isActive = privilegeFilter === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setPrivilegeFilter(f.id)}
+                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#06244B] text-white border-[#06244B] shadow-sm'
+                      : 'bg-[#F9FAFB] text-[#344054] border-[#D0D5DD] hover:bg-white hover:border-[#98A2B3]'
+                  }`}
+                >
+                  {Icon && <Icon className={`w-3 h-3 ${isActive ? 'text-amber-300' : 'text-slate-400'}`} />}
+                  <span>{f.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#667085] uppercase text-[10px]">Category:</span>
+          <div className="flex items-center gap-2.5">
+            <span className="font-semibold text-[#475467] uppercase text-[10px] tracking-wider font-mono">Category:</span>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="p-1 rounded border border-[#D9D6CF] bg-white text-xs font-semibold"
+              className="px-3 py-1.5 rounded-lg border border-[#D0D5DD] bg-[#F9FAFB] text-xs text-[#344054] font-medium focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
             >
               <option value="">All Categories</option>
               <option value="Pleadings">Pleadings</option>
@@ -280,44 +295,61 @@ export function DocumentsList() {
               <option value="Orders">Orders</option>
               <option value="Contracts">Contracts</option>
             </select>
+
+            {(searchQuery || privilegeFilter !== 'all' || categoryFilter || searchOCR) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setPrivilegeFilter('all');
+                  setCategoryFilter('');
+                  setSearchOCR(false);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                title="Reset all filters and search"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Documents Table */}
-      <div className="bg-white rounded-lg border border-[#D9D6CF] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-[#FAF8F5] text-[#06244B] uppercase font-bold border-b border-[#D9D6CF]">
+            <thead className="bg-[#F9FAFB] text-[#475467] uppercase font-semibold text-[11px] tracking-wider border-b border-[#EAECF0]">
               <tr>
-                <th className="py-2.5 px-3">Document Title &amp; File</th>
-                <th className="py-2.5 px-3 text-center">Version History</th>
-                <th className="py-2.5 px-3">Privilege &amp; Confidentiality Tag</th>
-                <th className="py-2.5 px-3">Category</th>
-                <th className="py-2.5 px-3">Linked Matter &amp; Client</th>
-                <th className="py-2.5 px-3">Uploaded By</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+                <th className="py-3 px-4 font-semibold">Document Title &amp; File</th>
+                <th className="py-3 px-3 text-center font-semibold">Version History</th>
+                <th className="py-3 px-3 font-semibold">Privilege &amp; Confidentiality Tag</th>
+                <th className="py-3 px-3 font-semibold">Category</th>
+                <th className="py-3 px-4 font-semibold">Linked Matter &amp; Client</th>
+                <th className="py-3 px-3 font-semibold">Uploaded By</th>
+                <th className="py-3 px-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D9D6CF]/60">
+            <tbody className="divide-y divide-[#EAECF0]">
               {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={doc.id} className="hover:bg-[#F9FAFB]/70 transition-colors">
                   {/* Title & File */}
-                  <td className="py-3 px-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded bg-[#06244B] text-white shrink-0">
-                        <FileText className="w-4 h-4 text-[#A4432B]" />
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-lg bg-[#06244B] text-white shrink-0 shadow-xs">
+                        <FileText className="w-4 h-4 text-amber-300" />
                       </div>
                       <div>
                         <span
                           onClick={() => setPreviewDoc(doc)}
-                          className="font-serif font-bold text-sm text-[#06244B] hover:text-[#A4432B] block cursor-pointer"
+                          className="font-serif font-bold text-sm text-[#06244B] hover:text-[#A4432B] block cursor-pointer transition-colors"
                         >
                           {doc.title}
                         </span>
-                        <span className="text-[11px] text-[#667085]">{doc.fileName} • {doc.fileSize}</span>
+                        <span className="text-[11px] text-[#667085] mt-0.5 block">{doc.fileName} • {doc.fileSize}</span>
                         {searchOCR && doc.ocrText && searchQuery && doc.ocrText.toLowerCase().includes(searchQuery.toLowerCase()) && (
-                          <div className="mt-1 p-1 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-900 max-w-md">
+                          <div className="mt-1.5 p-1.5 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-900 max-w-md">
                             <span className="font-bold">OCR Match:</span> "...{doc.ocrText.slice(0, 80)}..."
                           </div>
                         )}
@@ -329,7 +361,7 @@ export function DocumentsList() {
                   <td className="py-3 px-3 text-center">
                     <button
                       onClick={() => setVersionDoc(doc)}
-                      className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-100 text-[#06244B] border border-[#D9D6CF] hover:border-[#A4432B] transition-colors"
+                      className="font-mono font-semibold text-[11px] px-2.5 py-0.5 rounded-md bg-[#F9FAFB] text-[#06244B] border border-[#D0D5DD] hover:border-[#06244B] hover:bg-white transition-all cursor-pointer"
                       title="Click to view revision history"
                     >
                       {doc.version} ({doc.versionHistory?.length || 1})
@@ -340,10 +372,10 @@ export function DocumentsList() {
                   <td className="py-3 px-3">
                     <button
                       onClick={() => handleTogglePrivilege(doc.id)}
-                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold border transition-all cursor-pointer ${
                         doc.isPrivileged
                           ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
-                          : 'bg-slate-50 text-[#667085] border-slate-200 hover:bg-slate-100'
+                          : 'bg-slate-50 text-[#475467] border-slate-200 hover:bg-slate-100'
                       }`}
                     >
                       {doc.isPrivileged ? (
@@ -362,25 +394,25 @@ export function DocumentsList() {
 
                   {/* Category */}
                   <td className="py-3 px-3">
-                    <span className="text-[11px] px-2 py-0.5 rounded bg-[#F5F0E5] text-[#06244B] font-semibold border border-[#D9D6CF]">
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-md bg-slate-100 text-[#344054] font-medium border border-slate-200">
                       {doc.category}
                     </span>
                   </td>
 
                   {/* Matter & Client */}
-                  <td className="py-3 px-3 max-w-xs">
-                    <span className="text-xs font-semibold text-[#06244B] block truncate">{doc.matterTitle}</span>
-                    <span className="text-[11px] text-[#667085]">{doc.clientName}</span>
+                  <td className="py-3 px-4 max-w-xs">
+                    <span className="text-xs font-semibold text-[#1D2939] block truncate">{doc.matterTitle}</span>
+                    <span className="text-[11px] text-[#667085] mt-0.5 block">{doc.clientName}</span>
                   </td>
 
                   {/* Uploaded By */}
                   <td className="py-3 px-3">
-                    <span className="text-xs font-medium text-[#202A35] block">{doc.uploadedByName}</span>
-                    <span className="text-[10px] text-[#667085]">{formatDate(doc.uploadedAt, { short: true })}</span>
+                    <span className="text-xs font-medium text-[#1D2939] block">{doc.uploadedByName}</span>
+                    <span className="text-[11px] text-[#667085]">{formatDate(doc.uploadedAt, { short: true })}</span>
                   </td>
 
                   {/* Actions */}
-                  <td className="py-3 px-3 text-right whitespace-nowrap">
+                  <td className="py-3 px-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5">
                       <Button
                         size="xs"
