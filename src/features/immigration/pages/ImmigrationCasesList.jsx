@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { Globe, Plus, Search, Filter, AlertTriangle, FileText, CheckCircle2, Clock, ArrowRight, Eye } from 'lucide-react';
+import {
+  Globe,
+  Plus,
+  Search,
+  Filter,
+  AlertTriangle,
+  FileText,
+  CheckCircle2,
+  Clock,
+  ArrowRight,
+  Eye,
+  Layers,
+  ShieldCheck,
+  Printer,
+  Download,
+  Award
+} from 'lucide-react';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { DataTable } from '../../../components/ui/DataTable';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
@@ -12,6 +28,7 @@ import { MOCK_IMMIGRATION_CASES } from '../../../data/mockImmigrationCases';
 import { formatDate } from '../../../utils/formatDate';
 import { Link } from 'react-router-dom';
 import { ImmigrationCaseDrawer } from '../components/ImmigrationCaseDrawer';
+import { FilingPackageAssemblerModal } from '../components/FilingPackageAssemblerModal';
 import { useToast } from '../../../components/ui/Toast';
 
 export function ImmigrationCasesList() {
@@ -21,6 +38,8 @@ export function ImmigrationCasesList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedCase, setSelectedCase] = useState(null);
   const [isAddCaseOpen, setIsAddCaseOpen] = useState(false);
+  const [isAssemblerOpen, setIsAssemblerOpen] = useState(false);
+  const [assemblerCase, setAssemblerCase] = useState(null);
   const { addToast } = useToast();
 
   // New Case form state
@@ -30,6 +49,29 @@ export function ImmigrationCasesList() {
   const [newAlienNumber, setNewAlienNumber] = useState('');
   const [newCategory, setNewCategory] = useState('Family-Based Adjustment of Status');
   const [newReceiptNumber, setNewReceiptNumber] = useState('');
+
+  const handleOpenAssembler = (caseItem) => {
+    setAssemblerCase(caseItem || cases[0]);
+    setIsAssemblerOpen(true);
+  };
+
+  const handlePackageCleared = (caseId, attorneyName) => {
+    setCases(prev => prev.map(c => {
+      if (c.id === caseId) {
+        return {
+          ...c,
+          filingPackage: {
+            ...c.filingPackage,
+            status: 'Attorney Cleared for Filing ✓',
+            clearedByAttorney: true,
+            clearedAt: new Date().toISOString(),
+            clearingAttorney: attorneyName
+          }
+        };
+      }
+      return c;
+    }));
+  };
 
   const handleCreateCase = (e) => {
     e.preventDefault();
@@ -114,7 +156,7 @@ export function ImmigrationCasesList() {
             {val}
           </button>
           <span className="font-semibold text-sm text-[#06244B] block">{row.beneficiaryName}</span>
-          <span className="text-[11px] text-[#667085] block">{row.alienNumber}</span>
+          <span className="text-[11px] text-[#667085] block font-mono">{row.alienNumber}</span>
         </div>
       ),
     },
@@ -138,7 +180,7 @@ export function ImmigrationCasesList() {
       key: 'petitionerName',
       label: 'Petitioner / Sponsor',
       sortable: true,
-      render: (val) => <span className="text-xs text-[#202A35]">{val}</span>,
+      render: (val) => <span className="text-xs text-[#202A35] font-medium">{val}</span>,
     },
     {
       key: 'receiptNumber',
@@ -153,15 +195,19 @@ export function ImmigrationCasesList() {
     },
     {
       key: 'currentStage',
-      label: 'Current Stage',
+      label: 'Stage & Clearance',
       render: (val, row) => (
         <div>
           <span className="text-xs font-medium text-[#06244B] bg-[#F5F0E5] px-2 py-0.5 rounded border border-[#D9D6CF] inline-block">
             {val}
           </span>
-          {row.filingPackage?.clearedByAttorney && (
+          {row.filingPackage?.clearedByAttorney ? (
             <span className="block text-[10px] font-bold text-emerald-700 mt-0.5">
               Attorney Cleared ✓
+            </span>
+          ) : (
+            <span className="block text-[10px] text-amber-700 font-medium mt-0.5">
+              Assembly in Progress
             </span>
           )}
         </div>
@@ -175,17 +221,30 @@ export function ImmigrationCasesList() {
     },
     {
       key: 'actions',
-      label: 'Action',
+      label: 'Actions',
       align: 'right',
       render: (_, row) => (
-        <Button
-          size="sm"
-          variant="outline"
-          icon={Eye}
-          onClick={() => setSelectedCase(row)}
-        >
-          View File
-        </Button>
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            icon={Eye}
+            onClick={() => setSelectedCase(row)}
+            className="text-xs"
+          >
+            View
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={Layers}
+            onClick={() => handleOpenAssembler(row)}
+            className="text-xs text-[#A4432B] font-semibold hover:bg-amber-50"
+            title="Open Multi-Form Auto-Fill Package"
+          >
+            Auto-Fill
+          </Button>
+        </div>
       ),
     },
   ];
@@ -205,6 +264,38 @@ export function ImmigrationCasesList() {
         </span>
       </div>
 
+      {/* Multi-Form Auto-Fill Feature Banner */}
+      <div className="bg-[#06244B] text-white p-4 rounded-xl shadow-md border-l-4 border-[#A4432B] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-white/10 rounded-lg text-amber-300 shrink-0 mt-0.5">
+            <Layers className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm tracking-wide text-white">
+                DOCKETWISE MULTI-FORM AUTO-FILL &amp; FILING ASSEMBLY ENGINE
+              </h3>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-mono font-semibold">
+                8 CFR § 245.2
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
+              Eliminate repetitive data entry across Form G-28, Form I-130, Form I-485, Form I-765, and Form I-864. Enter client questionnaire data once to simultaneously generate compliant USCIS forms, 7-tab indexed exhibit binders, fee check vouchers ($1,975), and attorney clearance cover letters.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+          <button
+            type="button"
+            onClick={() => handleOpenAssembler(cases[0])}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-[#06244B] hover:bg-slate-100 font-bold text-xs shadow-sm transition-all cursor-pointer"
+          >
+            <Layers className="w-4 h-4 text-[#A4432B]" />
+            <span>Launch Multi-Form Studio</span>
+          </button>
+        </div>
+      </div>
+
       <PageHeader
         title="Immigration Practice Workspace"
         subtitle="Family-based petitions, employment visas, removal defense, and USCIS receipt tracking (Docketwise Model)."
@@ -219,8 +310,17 @@ export function ImmigrationCasesList() {
               size="sm"
               icon={Plus}
               onClick={() => setIsAddCaseOpen(true)}
+              className="bg-[#A4432B] hover:bg-[#8B3824]"
             >
               New Petition
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Layers}
+              onClick={() => handleOpenAssembler(cases[0])}
+            >
+              Auto-Fill Studio
             </Button>
             <Link to="/immigration/receipts">
               <Button variant="outline" size="sm" icon={Search}>
@@ -246,12 +346,12 @@ export function ImmigrationCasesList() {
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Active Petitions</span>
           <span className="text-2xl font-bold text-[#06244B] mt-1 block">{cases.length}</span>
-          <span className="text-[11px] text-emerald-700 font-medium">Family, Employment & Court Defense</span>
+          <span className="text-[11px] text-emerald-700 font-medium">Family, Employment &amp; Court Defense</span>
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Pending USCIS Receipts</span>
           <span className="text-2xl font-bold text-amber-700 mt-1 block">5</span>
-          <span className="text-[11px] text-[#667085]">Nebraska, Texas & Vermont Centers</span>
+          <span className="text-[11px] text-[#667085]">Nebraska, Texas &amp; Vermont Centers</span>
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">RFEs Due &lt;30 Days</span>
@@ -325,6 +425,16 @@ export function ImmigrationCasesList() {
           onClose={() => setSelectedCase(null)}
           immigrationCase={selectedCase}
           onUpdateCase={handleUpdateCase}
+        />
+      )}
+
+      {/* Filing Package Assembler & Multi-Form Auto-Fill Modal */}
+      {isAssemblerOpen && assemblerCase && (
+        <FilingPackageAssemblerModal
+          isOpen={isAssemblerOpen}
+          onClose={() => setIsAssemblerOpen(false)}
+          immigrationCase={assemblerCase}
+          onPackageCleared={handlePackageCleared}
         />
       )}
 
@@ -417,4 +527,3 @@ export function ImmigrationCasesList() {
     </div>
   );
 }
-
