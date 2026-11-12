@@ -44,33 +44,33 @@ export function PINavigationHeader({
     <div className="mb-6 space-y-4">
       {/* Top Banner & Context Bar */}
       <div className="bg-[#06244B] text-white rounded-lg p-4 sm:p-5 shadow-sm border border-[#0B356D]">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#B8C0C4]">
-              <span>Specialty Practice</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#A4432B]" />
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#B8C0C4]">
+              <span className="whitespace-nowrap">Specialty Practice</span>
+              <ChevronRight className="w-3.5 h-3.5 text-[#A4432B] shrink-0" />
               <span className="text-[#F5F0E5]">Personal Injury &amp; Wrongful Death Workspace</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">
               {title || 'Personal Injury Workspace'}
             </h1>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-[#B8C0C4] max-w-2xl">
+              <p className="text-xs sm:text-sm text-[#B8C0C4] max-w-2xl leading-relaxed">
                 {subtitle}
               </p>
             )}
           </div>
 
           {/* Quick Case Switcher & Action Area */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 xl:justify-end shrink-0">
             {cases.length > 0 && onCaseChange && (
-              <div className="flex items-center gap-2 bg-[#041833] border border-[#0B356D] rounded px-3 py-1.5 text-xs text-[#F5F0E5]">
-                <FolderOpen className="w-4 h-4 text-[#A4432B]" />
-                <span className="font-semibold text-slate-300">Active PI Matter:</span>
+              <div className="flex items-center gap-2 bg-[#041833] border border-[#0B356D] rounded px-3 py-1.5 text-xs text-[#F5F0E5] whitespace-nowrap">
+                <FolderOpen className="w-4 h-4 text-[#A4432B] shrink-0" />
+                <span className="font-semibold text-slate-300 whitespace-nowrap">Active PI Matter:</span>
                 <select
                   value={activeCaseId || ''}
                   onChange={(e) => onCaseChange(e.target.value)}
-                  className="bg-transparent text-white font-medium focus:outline-none cursor-pointer pr-2"
+                  className="bg-transparent text-white font-medium focus:outline-none cursor-pointer pr-1 max-w-[210px] truncate"
                 >
                   <option value="ALL" className="bg-[#06244B] text-white">All Active PI Matters ({cases.length})</option>
                   {cases.map((c) => (
@@ -82,7 +82,7 @@ export function PINavigationHeader({
               </div>
             )}
 
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
           </div>
         </div>
 
@@ -115,8 +115,8 @@ export function PINavigationHeader({
       </div>
 
       {/* 9 Dedicated Navigation Tabs */}
-      <div className="bg-white rounded border border-[#D9D6CF] shadow-subtle p-1.5 overflow-x-auto">
-        <nav className="flex space-x-1 min-w-max">
+      <div className="bg-white rounded border border-[#D9D6CF] shadow-subtle p-1.5">
+        <nav className="flex flex-wrap items-center gap-1">
           {PI_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -125,13 +125,13 @@ export function PINavigationHeader({
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-xs font-semibold transition-colors duration-150 ${
+                className={`flex items-center gap-1.5 px-2.5 py-2 rounded text-xs font-semibold whitespace-nowrap transition-colors duration-150 ${
                   isActive
                     ? 'bg-[#06244B] text-white shadow-sm'
                     : 'text-[#667085] hover:text-[#06244B] hover:bg-[#F5F0E5]/60'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#A4432B]' : 'text-[#667085]'}`} />
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#A4432B]' : 'text-[#667085]'}`} />
                 <span>{item.label}</span>
               </NavLink>
             );

@@ -76,13 +76,13 @@ export function IncidentLiability() {
       label: 'Accident Date & Time',
       sortable: true,
       render: (val, i) => (
-        <div>
-          <span className="font-bold text-[#06244B] flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#A4432B]" />
+        <div className="whitespace-nowrap">
+          <span className="font-bold text-[#06244B] flex items-center gap-1.5 whitespace-nowrap">
+            <Calendar className="w-3.5 h-3.5 text-[#A4432B] shrink-0" />
             {i?.incidentDate || val || 'Not Available'}
           </span>
-          <span className="text-[11px] text-[#667085] flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {i?.incidentTime || 'Time N/A'}
+          <span className="text-[11px] text-[#667085] flex items-center gap-1 whitespace-nowrap">
+            <Clock className="w-3 h-3 shrink-0" /> {i?.incidentTime || 'Time N/A'}
           </span>
         </div>
       ),
@@ -92,9 +92,9 @@ export function IncidentLiability() {
       label: 'Associated PI Matter',
       sortable: true,
       render: (val, i) => (
-        <div>
-          <span className="font-bold text-[#06244B] block">{i?.matterTitle || val || 'Untitled Matter'}</span>
-          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{i?.accidentType || 'Not Specified'}</span>
+        <div className="max-w-[210px]">
+          <span className="font-bold text-[#06244B] block leading-snug">{i?.matterTitle || val || 'Untitled Matter'}</span>
+          <span className="text-[11px] text-[#667085] truncate block">{i?.accidentType || 'Not Specified'}</span>
         </div>
       ),
     },
@@ -102,9 +102,9 @@ export function IncidentLiability() {
       key: 'incidentLocation',
       label: 'Location / Venue',
       render: (val, i) => (
-        <span className="text-xs text-slate-700 flex items-center gap-1 truncate max-w-xs">
-          <MapPin className="w-3.5 h-3.5 text-[#A4432B] flex-shrink-0" />
-          {i?.incidentLocation || val || 'Location Not Available'}
+        <span className="text-xs text-slate-700 flex items-start gap-1 max-w-[200px] leading-snug">
+          <MapPin className="w-3.5 h-3.5 text-[#A4432B] shrink-0 mt-0.5" />
+          <span className="line-clamp-2">{i?.incidentLocation || val || 'Location Not Available'}</span>
         </span>
       ),
     },
@@ -114,11 +114,11 @@ export function IncidentLiability() {
       render: (val, i) => {
         const details = i?.policeReportDetails || val || {};
         return (
-          <div>
-            <span className="text-xs font-semibold text-[#06244B] block">
+          <div className="max-w-[160px]">
+            <span className="text-xs font-semibold text-[#06244B] block truncate">
               {details.reportNumber || 'Not Available'}
             </span>
-            <span className="text-[11px] text-slate-500 truncate block max-w-xs">
+            <span className="text-[11px] text-slate-500 truncate block">
               {details.agency || 'No Agency Reported'}
             </span>
           </div>
@@ -133,11 +133,9 @@ export function IncidentLiability() {
         const plaintiffPct = fault.plaintiffPercentage ?? 0;
         const adversePct = fault.adversePercentage ?? 100;
         return (
-          <div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
-              {plaintiffPct}% Plaintiff / {adversePct}% Adverse
-            </span>
-          </div>
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap">
+            {plaintiffPct}% Plt / {adversePct}% Adv
+          </span>
         );
       },
     },
@@ -146,24 +144,26 @@ export function IncidentLiability() {
       label: 'Actions',
       align: 'right',
       render: (_, i) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
           <Button
             size="sm"
             variant="outline"
+            icon={Eye}
             className="text-xs py-1"
             onClick={() => setViewDetailIncident(i)}
             title="View Complete Investigation File"
           >
-            <Eye className="w-3.5 h-3.5 mr-1" /> View
+            View
           </Button>
           <Button
             size="sm"
             variant="outline"
+            icon={Edit}
             className="text-xs py-1 text-[#06244B]"
             onClick={() => openEditModal(i)}
             title="Edit Incident Data"
           >
-            <Edit className="w-3.5 h-3.5 mr-1" /> Edit
+            Edit
           </Button>
         </div>
       ),
@@ -209,7 +209,7 @@ export function IncidentLiability() {
               placeholder="Search location, crash, officer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="text-xs pl-8 pr-3 py-1.5 rounded border border-[#D9D6CF] focus:outline-none focus:ring-1 focus:ring-[#A4432B] w-56 sm:w-72"
+              className="text-xs pl-8 pr-3 py-1.5 rounded border border-[#D9D6CF] focus:outline-none focus:ring-1 focus:ring-[#A4432B] w-full sm:w-72"
             />
           </div>
         </div>

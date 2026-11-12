@@ -24,7 +24,7 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center font-medium rounded border ${variants[variant] || variants.default} ${sizes[size] || sizes.md} ${className}`}
+      className={`inline-flex items-center whitespace-nowrap font-medium rounded border ${variants[variant] || variants.default} ${sizes[size] || sizes.md} ${className}`}
     >
       {children}
     </span>

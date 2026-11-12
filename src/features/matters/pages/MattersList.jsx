@@ -53,12 +53,12 @@ export function MattersList() {
       label: 'Matter ID & Caption',
       sortable: true,
       render: (val, row) => (
-        <div>
-          <span className="font-serif font-bold text-[#06244B] hover:text-[#A4432B] block cursor-pointer text-sm">
+        <div className="min-w-[200px]">
+          <span className="font-serif font-bold text-[#06244B] hover:text-[#A4432B] block cursor-pointer text-sm leading-snug">
             {row.title}
           </span>
-          <div className="flex items-center gap-2 text-[11px] text-[#667085] mt-0.5">
-            <span className="font-semibold text-[#A4432B]">{row.matterNumber}</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[#667085] mt-1">
+            <span className="font-semibold text-[#A4432B] whitespace-nowrap">{row.matterNumber}</span>
             <span>•</span>
             <span>Client: <strong className="text-[#06244B]">{row.clientName}</strong></span>
           </div>
@@ -80,7 +80,7 @@ export function MattersList() {
       label: 'Lead Attorney',
       sortable: true,
       render: (val) => (
-        <span className="text-xs font-semibold text-[#06244B]">{val}</span>
+        <span className="text-xs font-semibold text-[#06244B] whitespace-nowrap">{val}</span>
       ),
     },
     {
@@ -100,7 +100,7 @@ export function MattersList() {
       label: 'Open Date',
       sortable: true,
       render: (val) => (
-        <span className="text-xs text-[#667085]">{formatDate(val, { short: true })}</span>
+        <span className="text-xs text-[#667085] whitespace-nowrap">{formatDate(val, { short: true })}</span>
       ),
     },
     {
@@ -157,15 +157,15 @@ export function MattersList() {
       />
 
       {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-start">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Search matter title, case number, or client..."
-          className="md:col-span-1"
+          className="xl:col-span-4"
         />
 
-        <div className="md:col-span-3">
+        <div className="xl:col-span-8">
           <FilterBar
             filters={[
               {

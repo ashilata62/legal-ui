@@ -53,28 +53,28 @@ export function ProbateWorkspace() {
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header & Case Selector */}
       <div className="bg-white border border-[#E4E7EC] rounded-xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#06244B] flex items-center justify-center text-white shadow-md">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="w-12 h-12 shrink-0 rounded-xl bg-[#06244B] flex items-center justify-center text-white shadow-md">
               <Landmark className="w-6 h-6 text-[#A4432B]" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[#F4EBFF] text-[#6941C6] border border-[#D6BBFB]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[#F4EBFF] text-[#6941C6] border border-[#D6BBFB] whitespace-nowrap">
                   SECTION 20: PROBATE & TRUSTS
                 </span>
-                <span className="text-xs font-mono text-[#667085]">{activeCase.caseNumber}</span>
+                <span className="text-xs font-mono text-[#667085] whitespace-nowrap">{activeCase.caseNumber}</span>
               </div>
-              <h1 className="text-2xl font-serif font-bold text-[#06244B]">{activeCase.estateName}</h1>
-              <p className="text-xs text-[#475467]">{activeCase.court} • {activeCase.judge}</p>
+              <h1 className="text-2xl font-serif font-bold text-[#06244B] leading-tight">{activeCase.estateName}</h1>
+              <p className="text-xs text-[#475467] mt-0.5">{activeCase.court} • {activeCase.judge}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <select
               value={selectedCaseId}
               onChange={(e) => setSelectedCaseId(e.target.value)}
-              className="px-3 py-2 text-sm border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#1D2939] focus:outline-none focus:ring-2 focus:ring-[#06244B]"
+              className="max-w-full sm:max-w-[260px] px-3 py-2 text-sm border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#1D2939] focus:outline-none focus:ring-2 focus:ring-[#06244B]"
             >
               {MOCK_PROBATE_CASES.map((c) => (
                 <option key={c.id} value={c.id}>{c.caseNumber} - {c.decedent}</option>
@@ -82,7 +82,7 @@ export function ProbateWorkspace() {
             </select>
             <button
               onClick={() => addToast('Exporting Utah Supervised Estate Inventory (Form 1402)...', 'info')}
-              className="inline-flex items-center gap-2 px-3 py-2 border border-[#D0D5DD] rounded-lg text-xs font-semibold text-[#344054] hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-2 border border-[#D0D5DD] rounded-lg text-xs font-semibold text-[#344054] hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0"
             >
               <Download className="w-4 h-4 text-[#A4432B]" />
               Export Court Inventory
@@ -91,7 +91,7 @@ export function ProbateWorkspace() {
         </div>
 
         {/* Fiduciary Notice & Bar Date Alert */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-[#F2F4F7]">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 pt-4 border-t border-[#F2F4F7]">
           <div className="p-3 bg-[#F8F9FC] rounded-lg border border-[#EAECF0]">
             <p className="text-[11px] font-semibold text-[#667085] uppercase">Personal Representative</p>
             <p className="text-xs font-bold text-[#101828] mt-0.5">{activeCase.personalRepresentative}</p>
@@ -119,28 +119,28 @@ export function ProbateWorkspace() {
       </div>
 
       {/* Sub-Tab Navigation */}
-      <div className="flex border-b border-[#E4E7EC] gap-6 text-sm font-semibold text-[#667085]">
+      <div className="flex flex-wrap items-center border-b border-[#E4E7EC] gap-x-6 gap-y-2 text-sm font-semibold text-[#667085]">
         <button
           onClick={() => setActiveTab('inventory')}
-          className={`pb-3 transition-colors ${activeTab === 'inventory' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
+          className={`pb-3 whitespace-nowrap transition-colors ${activeTab === 'inventory' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
         >
           Asset Inventory & Appraisals ({activeCase.inventory.length})
         </button>
         <button
           onClick={() => setActiveTab('claims')}
-          className={`pb-3 transition-colors ${activeTab === 'claims' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
+          className={`pb-3 whitespace-nowrap transition-colors ${activeTab === 'claims' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
         >
           Creditor Claims & Bar Date ({activeCase.creditorClaims.length})
         </button>
         <button
           onClick={() => setActiveTab('beneficiaries')}
-          className={`pb-3 transition-colors ${activeTab === 'beneficiaries' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
+          className={`pb-3 whitespace-nowrap transition-colors ${activeTab === 'beneficiaries' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
         >
           Beneficiary Distribution Schedule ({activeCase.beneficiaries.length})
         </button>
         <button
           onClick={() => setActiveTab('accounting')}
-          className={`pb-3 transition-colors ${activeTab === 'accounting' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
+          className={`pb-3 whitespace-nowrap transition-colors ${activeTab === 'accounting' ? 'border-b-2 border-[#A4432B] text-[#06244B]' : 'hover:text-[#101828]'}`}
         >
           Fiduciary Account Ledger
         </button>
