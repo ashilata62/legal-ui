@@ -15,8 +15,18 @@ import {
   ArrowLeft,
   MessageSquare,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  Landmark,
+  ShieldAlert,
+  DollarSign,
+  CheckCircle2,
+  Receipt,
+  Send,
+  Printer,
+  ArrowDownLeft,
+  ArrowUpRight
 } from 'lucide-react';
+import { MOCK_INVOICES } from '../../../data/mockInvoices';
 import { useClients } from '../../../context/ClientContext';
 import { useMatters } from '../../../context/MatterContext';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -50,6 +60,48 @@ export function ClientDetails() {
   const client = clients.find(c => c.id === clientId) || clients[0];
   const clientMatters = client ? getMattersByClient(client.id) : [];
 
+  // 360° Financials & Invoices for this client
+  const clientInvoices = MOCK_INVOICES.filter(
+    inv => inv.clientId === client?.id || inv.clientName === client?.name
+  );
+  const totalBilled = clientInvoices.reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+  const totalPaid = clientInvoices.reduce((sum, i) => sum + (i.paidAmount || 0), 0);
+  const totalOutstanding = clientInvoices.reduce((sum, i) => sum + (i.balanceDue || 0), 0);
+
+  // Client Trust Ledger mock data
+  const clientTrustBalance = client?.id === 'CLI-1001' ? 25000 : (client?.id === 'CLI-1002' ? 12500 : (client?.id === 'CLI-1008' ? 1440 : 5000));
+
+  // Client Communications mock data
+  const clientComms = [
+    {
+      id: 'comm-1',
+      type: 'Email',
+      subject: 'Discovery Protocol & Cold-Chain Telemetry Log Production',
+      sender: 'Thomas Bludworth, Esq.',
+      recipient: client?.email || 'client@firm.com',
+      date: '2026-11-05 14:20',
+      summary: 'Transmitted revised deposition questions and confirmed date for expert telemetry witness inspection.',
+    },
+    {
+      id: 'comm-2',
+      type: 'Telephone Call',
+      subject: 'Monthly Case Status & Deposition Scheduling Conference',
+      sender: 'Thomas Bludworth, Esq.',
+      recipient: client?.phone || '(801) 555-0100',
+      date: '2026-11-01 11:30',
+      summary: '30-minute conference with primary representative regarding upcoming mediator scheduling order.',
+    },
+    {
+      id: 'comm-3',
+      type: 'Portal Notice',
+      subject: 'Formal Request: 2024 Corporate Tax Returns & W-2 Records',
+      sender: 'Marcus Vance (Paralegal)',
+      recipient: 'Client Portal Secure Inbox',
+      date: '2026-10-24 09:15',
+      summary: 'Official document upload request issued through the secure client portal.',
+    },
+  ];
+
   if (!client) {
     return (
       <div className="p-8 text-center bg-white rounded border border-[#D9D6CF]">
@@ -63,6 +115,9 @@ export function ClientDetails() {
 
   const tabs = [
     { id: 'matters', label: 'Related Matters', count: clientMatters.length, icon: FolderOpen },
+    { id: 'invoices', label: 'Invoices & Billing', count: clientInvoices.length, icon: CreditCard },
+    { id: 'trust-ledger', label: 'IOLTA Trust Ledger', icon: Landmark },
+    { id: 'communications', label: 'Communications & Calls', count: clientComms.length, icon: MessageSquare },
     { id: 'related-parties', label: 'Related Entities & Adversaries', icon: User },
     { id: 'contact', label: 'Contact & Addresses', icon: User },
     { id: 'documents', label: 'Client Documents', count: 3, icon: FileText },
@@ -235,6 +290,244 @@ export function ClientDetails() {
         </div>
       )}
 
+      {/* Invoices & Billing Tab (Clio 360° Requirement) */}
+      {activeTab === 'invoices' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Total Invoiced to Date</span>
+              <span className="text-xl font-serif font-bold text-[#06244B] mt-1 block">
+                {formatCurrency(totalBilled || 15390)}
+              </span>
+              <span className="text-[11px] text-[#667085]">Cumulative billing across all client matters</span>
+            </div>
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Total Collections</span>
+              <span className="text-xl font-serif font-bold text-emerald-800 mt-1 block">
+                {formatCurrency(totalPaid || 15390)}
+              </span>
+              <span className="text-[11px] text-emerald-700">ACH, FedWire &amp; Retainer drawdowns</span>
+            </div>
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Outstanding Accounts Receivable</span>
+              <span className={`text-xl font-serif font-bold mt-1 block ${totalOutstanding > 0 ? 'text-amber-800' : 'text-[#06244B]'}`}>
+                {formatCurrency(totalOutstanding || 0)}
+              </span>
+              <span className="text-[11px] text-[#667085]">Aging receivables due within 30 days</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded border border-[#D9D6CF] shadow-subtle space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+              <div>
+                <h3 className="font-serif text-base font-bold text-[#06244B]">Client Invoices &amp; Statements</h3>
+                <p className="text-xs text-[#667085]">All fee and expense statements issued to {client.name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" icon={Printer} onClick={() => addToast('Generating full account billing statement PDF...', 'info')}>
+                  Print Statement
+                </Button>
+                <Button size="sm" variant="primary" icon={Plus} onClick={() => navigate('/billing/invoices')}>
+                  Draft New Invoice
+                </Button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-[#FAF8F5] text-[#06244B] uppercase font-bold border-y border-[#D9D6CF]">
+                  <tr>
+                    <th className="py-2.5 px-3">Invoice #</th>
+                    <th className="py-2.5 px-3">Linked Matter</th>
+                    <th className="py-2.5 px-3">Issue Date</th>
+                    <th className="py-2.5 px-3">Due Date</th>
+                    <th className="py-2.5 px-3 text-right">Total Amount</th>
+                    <th className="py-2.5 px-3 text-right">Balance Due</th>
+                    <th className="py-2.5 px-3 text-center">Status</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#D9D6CF]/60">
+                  {clientInvoices.length > 0 ? (
+                    clientInvoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-slate-50">
+                        <td className="py-2.5 px-3 font-mono font-bold text-[#A4432B]">{inv.invoiceNumber}</td>
+                        <td className="py-2.5 px-3 text-[#202A35] max-w-xs truncate">{inv.matterTitle}</td>
+                        <td className="py-2.5 px-3 text-[#667085]">{inv.issueDate}</td>
+                        <td className="py-2.5 px-3 text-[#667085]">{inv.dueDate}</td>
+                        <td className="py-2.5 px-3 text-right font-semibold text-[#06244B]">{formatCurrency(inv.totalAmount)}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-[#06244B]">{formatCurrency(inv.balanceDue)}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          <StatusBadge status={inv.status} />
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          <Button size="sm" variant="outline" onClick={() => navigate('/billing/invoices')}>
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-6 text-center text-xs text-[#667085]">
+                        No outstanding invoices on file for this client.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* IOLTA Trust Ledger Tab (Clio 360° Requirement) */}
+      {activeTab === 'trust-ledger' && (
+        <div className="space-y-4">
+          <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>
+                <strong>Segregated Client Trust Account (Utah Rule of Professional Conduct 1.15):</strong> Retainer funds are held in Chase IOLTA pooled escrow. Funds cannot be commingled or used for other matters.
+              </span>
+            </div>
+            <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+              ESCROW PROTECTED
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Current Available Trust Balance</span>
+              <span className="text-2xl font-serif font-bold text-emerald-800 mt-1 block">
+                {formatCurrency(clientTrustBalance)}
+              </span>
+              <span className="text-[11px] text-emerald-700 font-medium">Available for earned fee drawdown</span>
+            </div>
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Escrow Purpose</span>
+              <span className="text-sm font-bold text-[#06244B] mt-1 block">
+                General Litigation Retainer &amp; Expert Witness Reserve
+              </span>
+              <span className="text-[11px] text-[#667085]">Designated pursuant to signed retainer</span>
+            </div>
+            <div className="bg-white p-4 rounded border border-[#D9D6CF] shadow-subtle flex flex-col justify-between">
+              <span className="text-xs uppercase font-bold text-[#667085] block">Quick Trust Actions</span>
+              <div className="flex items-center gap-2 mt-2">
+                <Button size="sm" variant="outline" icon={ArrowDownLeft} onClick={() => navigate('/billing/trust')}>
+                  Deposit Retainer
+                </Button>
+                <Button size="sm" variant="primary" icon={ArrowUpRight} onClick={() => navigate('/billing/trust')}>
+                  Disburse Earned Fees
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Individual Client Sub-Ledger Table */}
+          <div className="bg-white p-5 rounded border border-[#D9D6CF] shadow-subtle space-y-3">
+            <div className="flex justify-between items-center">
+              <h3 className="font-serif text-base font-bold text-[#06244B]">Client Segregated Ledger History</h3>
+              <span className="text-xs text-[#667085]">Ledger ID: TR-1001 • Sub-account of Chase IOLTA #4402</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-[#FAF8F5] text-[#06244B] uppercase font-bold border-y border-[#D9D6CF]">
+                  <tr>
+                    <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3">Transaction Type</th>
+                    <th className="py-2.5 px-3">Description / Reference</th>
+                    <th className="py-2.5 px-3">Linked Matter</th>
+                    <th className="py-2.5 px-3 text-right">Debit (-)</th>
+                    <th className="py-2.5 px-3 text-right">Credit (+)</th>
+                    <th className="py-2.5 px-3 text-right">Running Trust Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#D9D6CF]/60">
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-2.5 px-3 text-[#667085]">2026-11-02</td>
+                    <td className="py-2.5 px-3 font-semibold text-rose-700">Earned Fee Drawdown</td>
+                    <td className="py-2.5 px-3 text-[#202A35]">Transfer to Operating for Invoice #HB-2026-1088 fees</td>
+                    <td className="py-2.5 px-3 text-[#667085]">25-CV-0101</td>
+                    <td className="py-2.5 px-3 text-right text-rose-700 font-semibold">-$5,000.00</td>
+                    <td className="py-2.5 px-3 text-right text-[#667085]">-</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-[#06244B]">{formatCurrency(clientTrustBalance)}</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-2.5 px-3 text-[#667085]">2026-10-15</td>
+                    <td className="py-2.5 px-3 font-semibold text-emerald-700">Retainer Deposit</td>
+                    <td className="py-2.5 px-3 text-[#202A35]">FedWire Retainer replenishment (Wire #W-98124)</td>
+                    <td className="py-2.5 px-3 text-[#667085]">25-CV-0101</td>
+                    <td className="py-2.5 px-3 text-right text-[#667085]">-</td>
+                    <td className="py-2.5 px-3 text-right text-emerald-700 font-semibold">+$15,000.00</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-[#06244B]">$30,000.00</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-2.5 px-3 text-[#667085]">2026-09-01</td>
+                    <td className="py-2.5 px-3 font-semibold text-emerald-700">Initial Retainer</td>
+                    <td className="py-2.5 px-3 text-[#202A35]">Opening deposit per Master Engagement Agreement</td>
+                    <td className="py-2.5 px-3 text-[#667085]">25-CV-0101</td>
+                    <td className="py-2.5 px-3 text-right text-[#667085]">-</td>
+                    <td className="py-2.5 px-3 text-right text-emerald-700 font-semibold">+$15,000.00</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-[#06244B]">$15,000.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Communications Tab (Clio 360° Requirement) */}
+      {activeTab === 'communications' && (
+        <div className="bg-white p-5 rounded border border-[#D9D6CF] shadow-subtle space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+            <div>
+              <h3 className="font-serif text-base font-bold text-[#06244B]">Client Communications &amp; Call Records</h3>
+              <p className="text-xs text-[#667085]">Direct emails, telephone conference logs, and portal correspondence with {client.name}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" icon={Phone} onClick={() => addToast('Opening phone call log modal...', 'info')}>
+                Log Call Notes
+              </Button>
+              <Button size="sm" variant="primary" icon={Mail} onClick={() => navigate('/communications')}>
+                Compose Email
+              </Button>
+            </div>
+          </div>
+
+          <div className="divide-y divide-[#D9D6CF]/50 text-xs">
+            {clientComms.map((comm) => (
+              <div key={comm.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50 p-2 rounded">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                      comm.type === 'Email' ? 'bg-blue-50 text-blue-800 border border-blue-200' : (comm.type === 'Telephone Call' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
+                    }`}>
+                      {comm.type}
+                    </span>
+                    <span className="font-bold text-[#06244B]">{comm.subject}</span>
+                  </div>
+                  <p className="text-[#667085] text-[11px] leading-relaxed">{comm.summary}</p>
+                  <div className="flex items-center gap-4 text-[10px] text-[#667085]">
+                    <span>From: <strong>{comm.sender}</strong></span>
+                    <span>•</span>
+                    <span>To: <strong>{comm.recipient}</strong></span>
+                  </div>
+                </div>
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 shrink-0">
+                  <span className="text-[11px] text-[#667085]">{comm.date}</span>
+                  <Button size="sm" variant="outline" onClick={() => addToast(`Opening thread: ${comm.subject}`, 'info')}>
+                    View Thread
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Related Parties & Adversaries Tab */}
       {activeTab === 'related-parties' && (
         <RelatedPartiesTab
@@ -283,7 +576,7 @@ export function ClientDetails() {
             <div className="space-y-2 text-xs">
               <p><strong className="text-[#06244B]">Responsible Partner:</strong> {client.assignedAttorneyName}</p>
               <p><strong className="text-[#06244B]">Fee Agreement Status:</strong> Countersigned engagement agreement on file</p>
-              <p><strong className="text-[#06244B]">Trust Retainer Deposit:</strong> Verified in CosmoLex accounting portal</p>
+              <p><strong className="text-[#06244B]">Trust Retainer Deposit:</strong> Verified in Firm IOLTA Trust Account (Utah RPC 1.15)</p>
               <p><strong className="text-[#06244B]">Client Entity Type:</strong> {client.type}</p>
             </div>
           </div>
