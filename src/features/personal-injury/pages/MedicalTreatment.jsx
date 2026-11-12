@@ -33,11 +33,13 @@ export function MedicalTreatment() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredProviders = providers.filter((p) => {
+    if (!p) return false;
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
       searchQuery === '' ||
-      p.providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.providerType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.recordsStatus.toLowerCase().includes(searchQuery.toLowerCase());
+      p.providerName?.toLowerCase().includes(q) ||
+      p.providerType?.toLowerCase().includes(q) ||
+      p.recordsStatus?.toLowerCase().includes(q);
     const matchesCase = activeCaseId === 'ALL' || p.matterId === activeCaseId;
     return matchesSearch && matchesCase;
   });
@@ -78,27 +80,27 @@ export function MedicalTreatment() {
       key: 'providerName',
       label: 'Medical Facility & Specialty',
       sortable: true,
-      render: (p) => (
+      render: (val, p) => (
         <div>
           <span className="font-bold text-[#06244B] flex items-center gap-1.5">
             <Stethoscope className="w-3.5 h-3.5 text-[#A4432B]" />
-            {p.providerName}
+            {p?.providerName || val || 'Not Available'}
           </span>
-          <span className="text-[11px] text-[#667085] block">{p.providerType}</span>
+          <span className="text-[11px] text-[#667085] block">{p?.providerType || 'General Medical'}</span>
         </div>
       ),
     },
     {
       key: 'dateOfService',
       label: 'Dates of Service & Care Status',
-      render: (p) => (
+      render: (val, p) => (
         <div>
           <span className="text-xs font-semibold text-slate-800 flex items-center gap-1">
             <Calendar className="w-3 h-3 text-slate-400" />
-            {p.dateOfService}
+            {p?.dateOfService || val || 'Not Available'}
           </span>
           <span className="inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700">
-            {p.treatmentStatus}
+            {p?.treatmentStatus || 'Ongoing'}
           </span>
         </div>
       ),
@@ -106,31 +108,34 @@ export function MedicalTreatment() {
     {
       key: 'recordsStatus',
       label: 'Medical Records Status',
-      render: (p) => (
-        <div>
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-              p.recordsStatus.includes('Received')
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-amber-100 text-amber-800'
-            }`}
-          >
-            {p.recordsStatus}
-          </span>
-          <span className="text-[10px] text-slate-500 block mt-0.5 truncate max-w-xs">
-            {p.authorizations}
-          </span>
-        </div>
-      ),
+      render: (val, p) => {
+        const status = p?.recordsStatus || val || 'Pending Request';
+        return (
+          <div>
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+                status.includes('Received')
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-amber-100 text-amber-800'
+              }`}
+            >
+              {status}
+            </span>
+            <span className="text-[10px] text-slate-500 block mt-0.5 truncate max-w-xs">
+              {p?.authorizations || 'Auth on file'}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: 'originalBill',
       label: 'Original Bill',
       align: 'right',
       sortable: true,
-      render: (p) => (
+      render: (_, p) => (
         <span className="font-semibold text-slate-900">
-          {formatCurrency(p.bills?.originalBill || 0)}
+          {formatCurrency(p?.bills?.originalBill || 0)}
         </span>
       ),
     },
@@ -138,9 +143,9 @@ export function MedicalTreatment() {
       key: 'insurancePaid',
       label: 'Insurance / PIP Paid',
       align: 'right',
-      render: (p) => (
+      render: (_, p) => (
         <span className="text-emerald-700 font-medium">
-          {formatCurrency(p.bills?.insurancePaid || 0)}
+          {formatCurrency(p?.bills?.insurancePaid || 0)}
         </span>
       ),
     },
@@ -149,13 +154,13 @@ export function MedicalTreatment() {
       label: 'Outstanding Balance',
       align: 'right',
       sortable: true,
-      render: (p) => (
+      render: (_, p) => (
         <div>
           <span className="font-bold text-[#B42318] block">
-            {formatCurrency(p.bills?.outstandingBalance || 0)}
+            {formatCurrency(p?.bills?.outstandingBalance || 0)}
           </span>
           <span className="text-[10px] text-slate-500 block truncate max-w-[120px]">
-            {p.bills?.paymentStatus}
+            {p?.bills?.paymentStatus || 'Pending'}
           </span>
         </div>
       ),
@@ -164,7 +169,7 @@ export function MedicalTreatment() {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (p) => (
+      render: (_, p) => (
         <Button
           size="sm"
           variant="outline"

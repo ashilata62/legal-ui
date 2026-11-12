@@ -31,12 +31,14 @@ export function LienRegister() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredLiens = liens.filter((l) => {
+    if (!l) return false;
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
       searchQuery === '' ||
-      l.lienHolder.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.lienType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.matterTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.confirmationStatus.toLowerCase().includes(searchQuery.toLowerCase());
+      l.lienHolder?.toLowerCase().includes(q) ||
+      l.lienType?.toLowerCase().includes(q) ||
+      l.matterTitle?.toLowerCase().includes(q) ||
+      l.confirmationStatus?.toLowerCase().includes(q);
     const matchesCase = activeCaseId === 'ALL' || l.matterId === activeCaseId;
     return matchesSearch && matchesCase;
   });
@@ -78,22 +80,22 @@ export function LienRegister() {
       key: 'lienHolder',
       label: 'Lien Holder / Recovery Agency',
       sortable: true,
-      render: (l) => (
+      render: (val, l) => (
         <div>
           <span className="font-bold text-[#06244B] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 text-[#A4432B]" />
-            {l.lienHolder}
+            {l?.lienHolder || val || 'Not Available'}
           </span>
-          <span className="text-[11px] text-[#667085] block">{l.matterTitle}</span>
+          <span className="text-[11px] text-[#667085] block">{l?.matterTitle || 'Unassigned'}</span>
         </div>
       ),
     },
     {
       key: 'lienType',
       label: 'Statutory / Plan Classification',
-      render: (l) => (
+      render: (val, l) => (
         <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-[#F5F0E5] text-[#06244B]">
-          {l.lienType}
+          {l?.lienType || val || 'Statutory Healthcare Lien'}
         </span>
       ),
     },
@@ -102,9 +104,9 @@ export function LienRegister() {
       label: 'Original Asserted',
       align: 'right',
       sortable: true,
-      render: (l) => (
+      render: (val, l) => (
         <span className="text-slate-500 line-through text-xs">
-          {formatCurrency(l.originalLienAmount)}
+          {formatCurrency(l?.originalLienAmount ?? val ?? 0)}
         </span>
       ),
     },
@@ -112,8 +114,10 @@ export function LienRegister() {
       key: 'reduction',
       label: 'Negotiated Savings',
       align: 'right',
-      render: (l) => {
-        const savings = Math.max(0, l.originalLienAmount - l.finalPayoffAmount);
+      render: (_, l) => {
+        const original = l?.originalLienAmount || 0;
+        const payoff = l?.finalPayoffAmount || 0;
+        const savings = Math.max(0, original - payoff);
         return (
           <span className="text-emerald-700 font-bold text-xs flex items-center justify-end gap-0.5">
             <TrendingDown className="w-3 h-3" />
@@ -127,32 +131,35 @@ export function LienRegister() {
       label: 'Final Payoff Amount',
       align: 'right',
       sortable: true,
-      render: (l) => (
+      render: (val, l) => (
         <span className="text-sm font-bold text-[#B42318]">
-          {formatCurrency(l.finalPayoffAmount)}
+          {formatCurrency(l?.finalPayoffAmount ?? val ?? 0)}
         </span>
       ),
     },
     {
       key: 'confirmationStatus',
       label: 'Payoff Confirmation',
-      render: (l) => (
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-            l.confirmationStatus.includes('Confirmed')
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-amber-100 text-amber-800'
-          }`}
-        >
-          {l.confirmationStatus}
-        </span>
-      ),
+      render: (val, l) => {
+        const conf = l?.confirmationStatus || val || 'Unconfirmed';
+        return (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+              conf.includes('Confirmed') || conf.includes('Payoff')
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            {conf}
+          </span>
+        );
+      },
     },
     {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (l) => (
+      render: (_, l) => (
         <Button
           size="sm"
           variant="outline"

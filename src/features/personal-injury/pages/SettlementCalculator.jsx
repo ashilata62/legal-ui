@@ -29,13 +29,13 @@ export function SettlementCalculator() {
   const [activeCaseId, setActiveCaseId] = useState(cases[0]?.id || 'PI-2026-001');
 
   // Load preset or initialize state
-  const presetModel = MOCK_SETTLEMENT_MODELS.find(m => m.matterId === activeCaseId) || MOCK_SETTLEMENT_MODELS[0];
+  const presetModel = MOCK_SETTLEMENT_MODELS.find(m => m.matterId === activeCaseId) || MOCK_SETTLEMENT_MODELS[0] || {};
 
-  const [grossRecovery, setGrossRecovery] = useState(presetModel.grossRecovery || 250000);
-  const [feeRate, setFeeRate] = useState(presetModel.contingencyFeePercentage || 33.3333);
-  const [caseExpenses, setCaseExpenses] = useState(presetModel.caseExpenses || []);
-  const [medicalLiens, setMedicalLiens] = useState(presetModel.medicalLiens || []);
-  const [otherDeductions, setOtherDeductions] = useState(presetModel.otherDeductions || []);
+  const [grossRecovery, setGrossRecovery] = useState(presetModel?.grossRecovery || 250000);
+  const [feeRate, setFeeRate] = useState(presetModel?.contingencyFeePercentage || 33.3333);
+  const [caseExpenses, setCaseExpenses] = useState(Array.isArray(presetModel?.caseExpenses) ? presetModel.caseExpenses : []);
+  const [medicalLiens, setMedicalLiens] = useState(Array.isArray(presetModel?.medicalLiens) ? presetModel.medicalLiens : []);
+  const [otherDeductions, setOtherDeductions] = useState(Array.isArray(presetModel?.otherDeductions) ? presetModel.otherDeductions : []);
 
   const [newExpenseDesc, setNewExpenseDesc] = useState('');
   const [newExpenseAmt, setNewExpenseAmt] = useState('');
@@ -48,11 +48,11 @@ export function SettlementCalculator() {
   useEffect(() => {
     const model = MOCK_SETTLEMENT_MODELS.find(m => m.matterId === activeCaseId);
     if (model) {
-      setGrossRecovery(model.grossRecovery);
-      setFeeRate(model.contingencyFeePercentage);
-      setCaseExpenses(model.caseExpenses);
-      setMedicalLiens(model.medicalLiens);
-      setOtherDeductions(model.otherDeductions);
+      setGrossRecovery(model.grossRecovery || 0);
+      setFeeRate(model.contingencyFeePercentage || 33.3333);
+      setCaseExpenses(Array.isArray(model.caseExpenses) ? model.caseExpenses : []);
+      setMedicalLiens(Array.isArray(model.medicalLiens) ? model.medicalLiens : []);
+      setOtherDeductions(Array.isArray(model.otherDeductions) ? model.otherDeductions : []);
     }
   }, [activeCaseId]);
 

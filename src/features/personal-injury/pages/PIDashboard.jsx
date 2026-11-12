@@ -59,9 +59,9 @@ export function PIDashboard() {
       key: 'matterNumber',
       label: 'Matter #',
       sortable: true,
-      render: (c) => (
+      render: (val, c) => (
         <span className="font-semibold text-[#06244B] bg-[#F5F0E5] px-2 py-0.5 rounded text-xs">
-          {c.matterNumber}
+          {c?.matterNumber || val || '—'}
         </span>
       ),
     },
@@ -69,53 +69,60 @@ export function PIDashboard() {
       key: 'clientName',
       label: 'Client / Case Title',
       sortable: true,
-      render: (c) => (
+      render: (val, c) => (
         <div>
-          <span className="font-bold text-[#06244B] block hover:underline cursor-pointer" onClick={() => navigate('/personal-injury/incident-liability')}>
-            {c.clientName}
+          <span
+            className="font-bold text-[#06244B] block hover:underline cursor-pointer"
+            onClick={() => navigate('/personal-injury/incident-liability')}
+          >
+            {c?.clientName || val || 'Unnamed Client'}
           </span>
-          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{c.matterTitle}</span>
+          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{c?.matterTitle || '—'}</span>
         </div>
       ),
     },
     {
       key: 'accidentType',
       label: 'Accident Category',
-      render: (c) => (
+      render: (val, c) => (
         <span className="text-xs text-slate-700 font-medium truncate block max-w-xs">
-          {c.accidentType}
+          {c?.accidentType || val || 'Not Specified'}
         </span>
       ),
     },
     {
       key: 'status',
       label: 'Stage Status',
-      render: (c) => <StatusBadge status={c.status} />,
+      render: (val, c) => <StatusBadge status={c?.status || val || 'Active'} />,
     },
     {
       key: 'medicalBillsTotal',
       label: 'Medical Bills',
       align: 'right',
       sortable: true,
-      render: (c) => <span className="font-semibold text-slate-900">{formatCurrency(c.medicalBillsTotal)}</span>,
+      render: (val, c) => (
+        <span className="font-semibold text-slate-900">
+          {formatCurrency(c?.medicalBillsTotal ?? val ?? 0)}
+        </span>
+      ),
     },
     {
       key: 'targetDemand',
       label: 'Target Demand',
       align: 'right',
       sortable: true,
-      render: (c) => (
+      render: (val, c) => (
         <span className="font-bold text-[#A4432B]">
-          {c.targetDemand ? formatCurrency(c.targetDemand) : 'TBD'}
+          {(c?.targetDemand ?? val) ? formatCurrency(c?.targetDemand ?? val) : 'TBD'}
         </span>
       ),
     },
     {
       key: 'statuteOfLimitations',
       label: 'SoL Bar Date',
-      render: (c) => (
+      render: (val, c) => (
         <span className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-          {c.statuteOfLimitations}
+          {c?.statuteOfLimitations || val || 'N/A'}
         </span>
       ),
     },
@@ -123,13 +130,15 @@ export function PIDashboard() {
       key: 'actions',
       label: 'Action',
       align: 'right',
-      render: (c) => (
+      render: (_, c) => (
         <Button
           size="sm"
           variant="outline"
           className="text-xs py-1"
           onClick={() => {
-            setActiveCaseId(c.id);
+            if (c?.id) {
+              setActiveCaseId(c.id);
+            }
             navigate('/personal-injury/settlement-calculator');
           }}
         >

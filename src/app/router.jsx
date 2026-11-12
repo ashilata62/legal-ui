@@ -43,7 +43,7 @@ import { MedicalTreatment } from '../features/personal-injury/pages/MedicalTreat
 import { VendorAssignments } from '../features/personal-injury/pages/VendorAssignments';
 import { DemandPackages } from '../features/personal-injury/pages/DemandPackages';
 import { LienRegister } from '../features/personal-injury/pages/LienRegister';
-import { SettlementCalculator } from '../features/personal-injury/pages/SettlementCalculator';
+import { SettlementCalculator as PISettlementCalculator } from '../features/personal-injury/pages/SettlementCalculator';
 
 // Module 3: Tasks & Activities
 import { MyTasks } from '../features/tasks/pages/MyTasks';
@@ -273,7 +273,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'personal-injury/settlement-calculator',
-        element: <SettlementCalculator />,
+        element: <PISettlementCalculator />,
       },
       // Module 3: Tasks & Activities
       {

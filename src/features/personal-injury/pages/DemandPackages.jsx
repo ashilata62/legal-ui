@@ -33,11 +33,13 @@ export function DemandPackages() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredDemands = demandPackages.filter((d) => {
+    if (!d) return false;
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
       searchQuery === '' ||
-      d.matterTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.carrierRecipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.attorneyReviewStatus.toLowerCase().includes(searchQuery.toLowerCase());
+      d.matterTitle?.toLowerCase().includes(q) ||
+      d.carrierRecipient?.toLowerCase().includes(q) ||
+      d.attorneyReviewStatus?.toLowerCase().includes(q);
     const matchesCase = activeCaseId === 'ALL' || d.matterId === activeCaseId;
     return matchesSearch && matchesCase;
   });
@@ -73,14 +75,14 @@ export function DemandPackages() {
       key: 'matterTitle',
       label: 'PI Matter & Carrier Recipient',
       sortable: true,
-      render: (d) => (
+      render: (val, d) => (
         <div>
           <span className="font-bold text-[#06244B] flex items-center gap-1.5">
             <FileText className="w-3.5 h-3.5 text-[#A4432B]" />
-            {d.matterTitle}
+            {d?.matterTitle || val || 'Untitled Matter'}
           </span>
           <span className="text-[11px] text-[#667085] block truncate max-w-sm">
-            {d.carrierRecipient}
+            {d?.carrierRecipient || 'Carrier Not Specified'}
           </span>
         </div>
       ),
@@ -90,17 +92,17 @@ export function DemandPackages() {
       label: 'Target Demand Amount',
       align: 'right',
       sortable: true,
-      render: (d) => (
+      render: (val, d) => (
         <span className="text-sm font-bold text-[#A4432B]">
-          {formatCurrency(d.demandAmount)}
+          {formatCurrency(d?.demandAmount ?? val ?? 0)}
         </span>
       ),
     },
     {
       key: 'checklistProgress',
       label: 'Readiness Checklist (10 Items)',
-      render: (d) => {
-        const completed = Object.values(d.checklist || {}).filter(Boolean).length;
+      render: (_, d) => {
+        const completed = Object.values(d?.checklist || {}).filter(Boolean).length;
         const pct = Math.round((completed / 10) * 100);
         return (
           <div className="w-40 space-y-1">
@@ -121,35 +123,38 @@ export function DemandPackages() {
     {
       key: 'deadlines',
       label: 'Response Deadline',
-      render: (d) => (
+      render: (_, d) => (
         <div>
           <span className="text-xs font-semibold text-[#B42318] flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {d.responseDeadline}
+            <Clock className="w-3 h-3" /> {d?.responseDeadline || 'Not Set'}
           </span>
-          <span className="text-[10px] text-slate-500 block">Drafted: {d.datePrepared}</span>
+          <span className="text-[10px] text-slate-500 block">Drafted: {d?.datePrepared || 'N/A'}</span>
         </div>
       ),
     },
     {
       key: 'attorneyReviewStatus',
       label: 'Attorney Review Status',
-      render: (d) => (
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
-            d.attorneyReviewStatus.includes('Approved') || d.attorneyReviewStatus.includes('Sent')
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-amber-100 text-amber-800'
-          }`}
-        >
-          {d.attorneyReviewStatus}
-        </span>
-      ),
+      render: (val, d) => {
+        const rev = d?.attorneyReviewStatus || val || 'Draft in Progress';
+        return (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
+              rev.includes('Approved') || rev.includes('Sent')
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            {rev}
+          </span>
+        );
+      },
     },
     {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (d) => (
+      render: (_, d) => (
         <div className="flex items-center justify-end gap-1.5">
           <Button
             size="sm"

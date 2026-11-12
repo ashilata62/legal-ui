@@ -30,12 +30,14 @@ export function InsuranceManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredPolicies = policies.filter((p) => {
+    if (!p) return false;
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
       searchQuery === '' ||
-      p.insuranceCompany.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.claimNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.adjusterName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.policyNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      p.insuranceCompany?.toLowerCase().includes(q) ||
+      p.claimNumber?.toLowerCase().includes(q) ||
+      p.adjusterName?.toLowerCase().includes(q) ||
+      p.policyNumber?.toLowerCase().includes(q);
     const matchesCase = activeCaseId === 'ALL' || p.matterId === activeCaseId;
     return matchesSearch && matchesCase;
   });
@@ -71,35 +73,35 @@ export function InsuranceManagement() {
       key: 'insuranceCompany',
       label: 'Carrier & Coverage Type',
       sortable: true,
-      render: (p) => (
+      render: (val, p) => (
         <div>
           <span className="font-bold text-[#06244B] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 text-[#A4432B]" />
-            {p.insuranceCompany}
+            {p?.insuranceCompany || val || 'Not Available'}
           </span>
-          <span className="text-[11px] text-[#667085] block">{p.insuranceType}</span>
+          <span className="text-[11px] text-[#667085] block">{p?.insuranceType || 'Standard Policy'}</span>
         </div>
       ),
     },
     {
       key: 'policyLimits',
       label: 'Policy Limits & Policy #',
-      render: (p) => (
+      render: (val, p) => (
         <div>
-          <span className="font-bold text-slate-900 block">{p.policyLimits}</span>
-          <span className="text-[11px] text-slate-500 font-mono">Pol: {p.policyNumber}</span>
+          <span className="font-bold text-slate-900 block">{p?.policyLimits || val || 'Limits Not Available'}</span>
+          <span className="text-[11px] text-slate-500 font-mono">Pol: {p?.policyNumber || 'N/A'}</span>
         </div>
       ),
     },
     {
       key: 'adjuster',
       label: 'Adjuster Contact & Claim #',
-      render: (p) => (
+      render: (_, p) => (
         <div>
-          <span className="font-semibold text-slate-900 block">{p.adjusterName}</span>
-          <span className="text-[11px] text-[#A4432B] font-mono block">Claim #{p.claimNumber}</span>
+          <span className="font-semibold text-slate-900 block">{p?.adjusterName || 'Unassigned'}</span>
+          <span className="text-[11px] text-[#A4432B] font-mono block">Claim #{p?.claimNumber || 'N/A'}</span>
           <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
-            <span className="flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> {p.adjusterPhone}</span>
+            <span className="flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> {p?.adjusterPhone || 'Phone N/A'}</span>
           </div>
         </div>
       ),
@@ -107,22 +109,25 @@ export function InsuranceManagement() {
     {
       key: 'utahCoverage',
       label: 'PIP / MedPay / UIM Endorsements',
-      render: (p) => (
+      render: (_, p) => (
         <div className="space-y-0.5 text-[11px]">
-          {p.pipCoverage && p.pipCoverage !== 'None' && (
+          {p?.pipCoverage && p.pipCoverage !== 'None' && (
             <span className="inline-block px-1.5 py-0.2 rounded bg-blue-50 text-blue-800 font-semibold mr-1">
               PIP: {p.pipCoverage}
             </span>
           )}
-          {p.uimCoverage && p.uimCoverage !== 'None' && (
+          {p?.uimCoverage && p.uimCoverage !== 'None' && (
             <span className="inline-block px-1.5 py-0.2 rounded bg-purple-50 text-purple-800 font-semibold">
               UIM: {p.uimCoverage}
             </span>
           )}
-          {p.medPayCoverage && p.medPayCoverage !== 'None' && (
+          {p?.medPayCoverage && p.medPayCoverage !== 'None' && (
             <span className="inline-block px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 font-semibold ml-1">
               MedPay: {p.medPayCoverage}
             </span>
+          )}
+          {(!p?.pipCoverage || p.pipCoverage === 'None') && (!p?.uimCoverage || p.uimCoverage === 'None') && (!p?.medPayCoverage || p.medPayCoverage === 'None') && (
+            <span className="text-slate-400 italic">No optional endorsements</span>
           )}
         </div>
       ),
@@ -130,20 +135,20 @@ export function InsuranceManagement() {
     {
       key: 'claimStatus',
       label: 'Claim Status',
-      render: (p) => <StatusBadge status={p.claimStatus} />,
+      render: (val, p) => <StatusBadge status={p?.claimStatus || val || 'Active'} />,
     },
     {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (p) => (
+      render: (_, p) => (
         <Button
           size="sm"
           variant="outline"
           className="text-xs py-1 text-[#06244B]"
           onClick={() => openEditModal(p)}
         >
-          <Edit className="w-3.5 h-3.5 mr-1" /> Edit
+          <Edit className="w-3.5 h-3.5 mr-1" /> Edit Policy
         </Button>
       ),
     },

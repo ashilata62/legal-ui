@@ -32,7 +32,11 @@ import {
   Bell,
   Scale,
   Calculator,
-  Award
+  Award,
+  Activity,
+  Shield,
+  Stethoscope,
+  DollarSign
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';

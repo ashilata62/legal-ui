@@ -32,11 +32,13 @@ export function ClientDamages() {
   const [expandedRecord, setExpandedRecord] = useState(null);
 
   const filteredDamages = damagesList.filter((d) => {
+    if (!d) return false;
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
       searchQuery === '' ||
-      d.matterTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.injuries?.some(i => i.bodyArea.toLowerCase().includes(searchQuery.toLowerCase()) || i.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      d.employment?.employer.toLowerCase().includes(searchQuery.toLowerCase());
+      d.matterTitle?.toLowerCase().includes(q) ||
+      d.injuries?.some(i => i?.bodyArea?.toLowerCase().includes(q) || i?.description?.toLowerCase().includes(q)) ||
+      d.employment?.employer?.toLowerCase().includes(q);
     const matchesCase = activeCaseId === 'ALL' || d.matterId === activeCaseId;
     return matchesSearch && matchesCase;
   });
@@ -72,40 +74,48 @@ export function ClientDamages() {
       key: 'matterTitle',
       label: 'PI Matter & Client',
       sortable: true,
-      render: (d) => (
+      render: (val, d) => (
         <div>
-          <span className="font-bold text-[#06244B] block">{d.matterTitle}</span>
-          <span className="text-[11px] text-[#667085]">{d.employment?.jobTitle} at {d.employment?.employer}</span>
+          <span className="font-bold text-[#06244B] block">{d?.matterTitle || val || 'Untitled Matter'}</span>
+          <span className="text-[11px] text-[#667085]">
+            {d?.employment?.jobTitle || 'Employment TBD'} at {d?.employment?.employer || 'Employer N/A'}
+          </span>
         </div>
       ),
     },
     {
       key: 'injuries',
       label: 'Primary Anatomical Injuries',
-      render: (d) => (
-        <div className="space-y-1">
-          {d.injuries?.slice(0, 2).map((inj, idx) => (
-            <div key={idx} className="flex items-center gap-1.5 text-xs">
-              <span className="font-semibold text-[#06244B] bg-[#F5F0E5] px-1.5 py-0.5 rounded text-[11px]">
-                {inj.bodyArea}
+      render: (val, d) => {
+        const injuries = Array.isArray(d?.injuries) ? d.injuries : Array.isArray(val) ? val : [];
+        return (
+          <div className="space-y-1">
+            {injuries.slice(0, 2).map((inj, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 text-xs">
+                <span className="font-semibold text-[#06244B] bg-[#F5F0E5] px-1.5 py-0.5 rounded text-[11px]">
+                  {inj.bodyArea || 'General'}
+                </span>
+                <span className="text-slate-600 truncate max-w-xs">{inj.description || 'Not Available'}</span>
+              </div>
+            ))}
+            {injuries.length > 2 && (
+              <span className="text-[10px] text-slate-500 font-medium">
+                +{injuries.length - 2} additional diagnosed injuries
               </span>
-              <span className="text-slate-600 truncate max-w-xs">{inj.description}</span>
-            </div>
-          ))}
-          {d.injuries?.length > 2 && (
-            <span className="text-[10px] text-slate-500 font-medium">
-              +{d.injuries.length - 2} additional diagnosed injuries
-            </span>
-          )}
-        </div>
-      ),
+            )}
+            {injuries.length === 0 && (
+              <span className="text-xs text-[#667085] italic">No injuries recorded</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: 'functionalLimitations',
       label: 'Documented Physical Impairments',
-      render: (d) => (
+      render: (val, d) => (
         <span className="text-xs text-slate-700 truncate block max-w-xs leading-relaxed">
-          {d.functionalLimitations}
+          {d?.functionalLimitations || val || 'None Documented'}
         </span>
       ),
     },
@@ -114,12 +124,12 @@ export function ClientDamages() {
       label: 'Calculated Wage Loss',
       align: 'right',
       sortable: true,
-      render: (d) => (
+      render: (_, d) => (
         <div>
           <span className="font-bold text-[#A4432B] block">
-            {formatCurrency(d.employment?.totalLostWages || 0)}
+            {formatCurrency(d?.employment?.totalLostWages || 0)}
           </span>
-          <span className="text-[11px] text-slate-500">{d.employment?.daysMissed} work days missed</span>
+          <span className="text-[11px] text-slate-500">{d?.employment?.daysMissed ?? 0} work days missed</span>
         </div>
       ),
     },
@@ -127,16 +137,16 @@ export function ClientDamages() {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (d) => (
+      render: (_, d) => (
         <div className="flex items-center justify-end gap-1.5">
           <Button
             size="sm"
             variant="outline"
             className="text-xs py-1"
-            onClick={() => setExpandedRecord(expandedRecord?.id === d.id ? null : d)}
+            onClick={() => setExpandedRecord(expandedRecord?.id === d?.id ? null : d)}
           >
             <Eye className="w-3.5 h-3.5 mr-1" />
-            {expandedRecord?.id === d.id ? 'Collapse' : 'Details'}
+            {expandedRecord?.id === d?.id ? 'Collapse' : 'Details'}
           </Button>
           <Button
             size="sm"

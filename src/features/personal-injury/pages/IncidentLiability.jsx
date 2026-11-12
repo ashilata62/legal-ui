@@ -75,14 +75,14 @@ export function IncidentLiability() {
       key: 'incidentDate',
       label: 'Accident Date & Time',
       sortable: true,
-      render: (i) => (
+      render: (val, i) => (
         <div>
           <span className="font-bold text-[#06244B] flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-[#A4432B]" />
-            {i.incidentDate}
+            {i?.incidentDate || val || 'Not Available'}
           </span>
           <span className="text-[11px] text-[#667085] flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {i.incidentTime}
+            <Clock className="w-3 h-3" /> {i?.incidentTime || 'Time N/A'}
           </span>
         </div>
       ),
@@ -91,53 +91,61 @@ export function IncidentLiability() {
       key: 'matterTitle',
       label: 'Associated PI Matter',
       sortable: true,
-      render: (i) => (
+      render: (val, i) => (
         <div>
-          <span className="font-bold text-[#06244B] block">{i.matterTitle}</span>
-          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{i.accidentType}</span>
+          <span className="font-bold text-[#06244B] block">{i?.matterTitle || val || 'Untitled Matter'}</span>
+          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{i?.accidentType || 'Not Specified'}</span>
         </div>
       ),
     },
     {
       key: 'incidentLocation',
       label: 'Location / Venue',
-      render: (i) => (
+      render: (val, i) => (
         <span className="text-xs text-slate-700 flex items-center gap-1 truncate max-w-xs">
           <MapPin className="w-3.5 h-3.5 text-[#A4432B] flex-shrink-0" />
-          {i.incidentLocation}
+          {i?.incidentLocation || val || 'Location Not Available'}
         </span>
       ),
     },
     {
-      key: 'policeReport',
+      key: 'policeReportDetails',
       label: 'Police Report / Citations',
-      render: (i) => (
-        <div>
-          <span className="text-xs font-semibold text-[#06244B] block">
-            {i.policeReportDetails?.reportNumber || 'N/A'}
-          </span>
-          <span className="text-[11px] text-slate-500 truncate block max-w-xs">
-            {i.policeReportDetails?.agency}
-          </span>
-        </div>
-      ),
+      render: (val, i) => {
+        const details = i?.policeReportDetails || val || {};
+        return (
+          <div>
+            <span className="text-xs font-semibold text-[#06244B] block">
+              {details.reportNumber || 'Not Available'}
+            </span>
+            <span className="text-[11px] text-slate-500 truncate block max-w-xs">
+              {details.agency || 'No Agency Reported'}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: 'comparativeFault',
       label: 'Comparative Fault %',
-      render: (i) => (
-        <div>
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
-            {i.comparativeFault?.plaintiffPercentage ?? 0}% Plaintiff / {i.comparativeFault?.adversePercentage ?? 100}% Adverse
-          </span>
-        </div>
-      ),
+      render: (val, i) => {
+        const fault = i?.comparativeFault || val || {};
+        const plaintiffPct = fault.plaintiffPercentage ?? 0;
+        const adversePct = fault.adversePercentage ?? 100;
+        return (
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+              {plaintiffPct}% Plaintiff / {adversePct}% Adverse
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (i) => (
+      render: (_, i) => (
         <div className="flex items-center justify-end gap-1.5">
           <Button
             size="sm"

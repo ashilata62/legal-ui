@@ -13,6 +13,8 @@ export function DataTable({
   const [sortDirection, setSortDirection] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const safeData = useMemo(() => (Array.isArray(data) ? data.filter(Boolean) : []), [data]);
+
   const handleSort = (field) => {
     if (!field) return;
     if (sortField === field) {
@@ -24,19 +26,26 @@ export function DataTable({
   };
 
   const sortedData = useMemo(() => {
-    if (!sortField) return data;
-    return [...data].sort((a, b) => {
+    if (!safeData || safeData.length === 0) return [];
+    if (!sortField) return safeData;
+    return [...safeData].sort((a, b) => {
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
       let aVal = a[sortField];
       let bVal = b[sortField];
 
       if (typeof aVal === 'string') aVal = aVal.toLowerCase();
       if (typeof bVal === 'string') bVal = bVal.toLowerCase();
 
+      if (aVal === undefined || aVal === null) return 1;
+      if (bVal === undefined || bVal === null) return -1;
+
       if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [data, sortField, sortDirection]);
+  }, [safeData, sortField, sortDirection]);
 
   const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
   const paginatedData = useMemo(() => {
@@ -95,16 +104,34 @@ export function DataTable({
                     onRowClick ? 'cursor-pointer hover:bg-[#F5F0E5]/40' : ''
                   } ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#FAF7F0]/30'}`}
                 >
-                  {columns.map((col, colIdx) => (
-                    <td
-                      key={col.key || colIdx}
-                      className={`px-4 py-3 text-[#202A35] ${
-                        col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
-                      }`}
-                    >
-                      {col.render ? col.render(row[col.key], row) : row[col.key] ?? '—'}
-                    </td>
-                  ))}
+                  {columns.map((col, colIdx) => {
+                    const safeRow = row || {};
+                    const cellValue = col.key ? safeRow[col.key] : undefined;
+
+                    let renderedContent = null;
+                    if (typeof col.render === 'function') {
+                      try {
+                        const firstArg = cellValue !== undefined ? cellValue : safeRow;
+                        renderedContent = col.render(firstArg, safeRow);
+                      } catch (err) {
+                        console.warn(`DataTable error rendering column "${col.key || col.label}":`, err);
+                        renderedContent = <span className="text-xs text-[#667085] italic">Not Available</span>;
+                      }
+                    } else {
+                      renderedContent = cellValue !== undefined && cellValue !== null && cellValue !== '' ? String(cellValue) : '—';
+                    }
+
+                    return (
+                      <td
+                        key={col.key || colIdx}
+                        className={`px-4 py-3 text-[#202A35] ${
+                          col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                        }`}
+                      >
+                        {renderedContent ?? '—'}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             )}
