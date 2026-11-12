@@ -486,6 +486,12 @@ export const ROUTE_PERMISSIONS = {
   '/litigation/discovery': PERMISSIONS.MATTERS_VIEW,
   '/litigation/trial': PERMISSIONS.MATTERS_VIEW,
 
+  '/probate': PERMISSIONS.MATTERS_VIEW,
+  '/family-law': PERMISSIONS.MATTERS_VIEW,
+  '/criminal': PERMISSIONS.MATTERS_VIEW,
+  '/appeals': PERMISSIONS.MATTERS_VIEW,
+  '/evictions': PERMISSIONS.MATTERS_VIEW,
+
   '/tasks': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/mine': PERMISSIONS.TASKS_VIEW_OWN,
   '/tasks/team': PERMISSIONS.TASKS_VIEW_TEAM,
