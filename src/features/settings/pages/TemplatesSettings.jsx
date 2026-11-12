@@ -380,7 +380,7 @@ Attorney contingency fee shall be {{Billing.ContingencyPct}} of gross recovery p
             {/* Modal Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#D9D6CF]">
               <span className="text-[11px] text-[#667085]">
-                Variables auto-mapped: <strong>{{Client}}, {{Court}}, {{OpposingParty}}, {{Rates}}</strong>
+                Variables auto-mapped: <strong>{"{{Client}}, {{Court}}, {{OpposingParty}}, {{Rates}}"}</strong>
               </span>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline" onClick={() => setSelectedTemplate(null)}>
