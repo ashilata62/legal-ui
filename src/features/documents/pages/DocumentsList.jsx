@@ -414,22 +414,22 @@ export function DocumentsList() {
                   {/* Actions */}
                   <td className="py-3 px-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5">
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        icon={Eye}
+                      <button
+                        type="button"
                         onClick={() => setPreviewDoc(doc)}
+                        className="p-1.5 rounded-lg border border-[#D0D5DD] bg-white text-[#344054] hover:text-[#06244B] hover:bg-[#F9FAFB] hover:border-[#06244B] transition-all cursor-pointer shadow-xs"
+                        title="Preview Document"
                       >
-                        Preview
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        icon={Download}
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => addToast(`Download started for ${doc.fileName}.`, 'info')}
+                        className="p-1.5 rounded-lg border border-[#D0D5DD] bg-white text-[#344054] hover:text-[#06244B] hover:bg-[#F9FAFB] hover:border-[#06244B] transition-all cursor-pointer shadow-xs"
+                        title="Download Document"
                       >
-                        Download
-                      </Button>
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </td>
                 </tr>
