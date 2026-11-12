@@ -5,6 +5,7 @@ import {
   Search,
   Edit,
   Eye,
+  Trash2,
   Activity,
   Briefcase,
   DollarSign,
@@ -78,6 +79,18 @@ export function ClientDamages() {
   const openEditModal = (dmg) => {
     setSelectedDamage(dmg);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteDamage = (id) => {
+    setDamagesList((prev) => {
+      const updated = prev.filter((d) => d.id !== id);
+      mockStorage.set('pi_damages', updated);
+      return updated;
+    });
+    if (expandedRecord?.id === id) {
+      setExpandedRecord(null);
+    }
+    addToast('Damages & injury record deleted.', 'info');
   };
 
   return (
@@ -184,11 +197,11 @@ export function ClientDamages() {
           <table className="w-full text-left border-collapse table-fixed">
             <thead className="bg-[#F8F9FC] border-b border-[#EAECF0] text-[10px] font-bold uppercase tracking-wider text-[#475467]">
               <tr>
-                <th className="py-3 px-4 w-[24%]">PI Matter & Client</th>
+                <th className="py-3 px-4 w-[26%]">PI Matter & Client</th>
                 <th className="py-3 px-4 w-[28%]">Primary Anatomical Injuries</th>
-                <th className="py-3 px-4 w-[24%]">Documented Physical Impairments</th>
-                <th className="py-3 px-4 w-[14%] text-right">Calculated Wage Loss</th>
-                <th className="py-3 px-4 w-[10%] text-right">Actions</th>
+                <th className="py-3 px-4 w-[22%]">Documented Physical Impairments</th>
+                <th className="py-3 px-4 w-[13%] text-right pr-4">Calculated Wage Loss</th>
+                <th className="py-3 px-4 w-[11%] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F2F4F7] text-xs">
@@ -279,28 +292,41 @@ export function ClientDamages() {
                         </div>
                       </td>
 
-                      {/* Column 5: Actions */}
+                      {/* Column 5: Actions - ICONS ONLY */}
                       <td className="py-4 px-4 align-top text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                          {/* View Dossier Icon */}
                           <button
                             type="button"
                             onClick={() => setExpandedRecord(isExpanded ? null : d)}
-                            className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold inline-flex items-center gap-1 transition-all cursor-pointer ${
+                            className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
                               isExpanded
                                 ? 'bg-[#06244B] text-white border-[#06244B] shadow-sm'
-                                : 'bg-white text-[#344054] border-[#D0D5DD] hover:bg-slate-50'
+                                : 'bg-white text-[#344054] border-[#D0D5DD] hover:bg-slate-100 hover:text-[#06244B]'
                             }`}
+                            title={isExpanded ? 'Hide Dossier' : 'View Full Dossier'}
                           >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>{isExpanded ? 'Hide' : 'Details'}</span>
+                            <Eye className="w-4 h-4" />
                           </button>
+
+                          {/* Edit Icon */}
                           <button
                             type="button"
                             onClick={() => openEditModal(d)}
-                            className="px-2.5 py-1.5 rounded-lg border border-[#D0D5DD] bg-white text-[#06244B] hover:bg-slate-50 text-xs font-semibold inline-flex items-center gap-1 transition-all cursor-pointer"
+                            className="w-8 h-8 rounded-lg border border-[#D0D5DD] bg-white text-[#06244B] hover:bg-slate-100 hover:border-[#06244B] flex items-center justify-center transition-all cursor-pointer"
+                            title="Edit Record"
                           >
-                            <Edit className="w-3.5 h-3.5 text-[#A4432B]" />
-                            <span>Edit</span>
+                            <Edit className="w-4 h-4 text-[#A4432B]" />
+                          </button>
+
+                          {/* Delete Icon */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteDamage(d.id)}
+                            className="w-8 h-8 rounded-lg border border-[#D0D5DD] bg-white text-[#667085] hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center transition-all cursor-pointer"
+                            title="Delete Profile"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
