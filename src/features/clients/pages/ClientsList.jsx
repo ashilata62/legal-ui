@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Search, Filter, Eye, Edit, Building2, User, Phone, Mail, FolderOpen } from 'lucide-react';
+import { UserPlus, Search, Filter, Eye, Edit, Building2, User, Phone, Mail, FolderOpen, RotateCcw } from 'lucide-react';
 import { useClients } from '../../../context/ClientContext';
 import { useAuth } from '../../../hooks/useAuth';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -162,43 +162,64 @@ export function ClientsList() {
         }
       />
 
-      {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by client name, reference ID, email..."
-          className="md:col-span-1"
-        />
-
-        <div className="md:col-span-2">
-          <FilterBar
-            filters={[
-              {
-                id: 'status',
-                label: 'Status',
-                value: statusFilter,
-                options: [
-                  { value: 'Active', label: 'Active (Retained)' },
-                  { value: 'Prospective', label: 'Prospective' },
-                  { value: 'Inactive', label: 'Inactive / Closed' },
-                ],
-                onChange: setStatusFilter,
-              },
-              {
-                id: 'attorney',
-                label: 'Assigned Counsel',
-                value: attorneyFilter,
-                options: attorneys.map(a => ({ value: a.id, label: a.name })),
-                onChange: setAttorneyFilter,
-              },
-            ]}
-            onReset={() => {
-              setSearchQuery('');
-              setStatusFilter('');
-              setAttorneyFilter('');
-            }}
+      {/* Unified Executive Search & Filter Toolbar */}
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#EAECF0] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative w-full lg:max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-[#98A2B3]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by client name, reference ID, email..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#F9FAFB] border border-[#D0D5DD] rounded-lg text-[#1D2939] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#06244B] focus:bg-white transition-all"
           />
+        </div>
+
+        {/* Filter Dropdowns & Reset */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#475467] mr-1">
+            <Filter className="w-3.5 h-3.5 text-[#A4432B]" />
+            <span className="uppercase text-[10px] tracking-wider font-mono">Filters:</span>
+          </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Status: All</option>
+            <option value="Active">Active (Retained)</option>
+            <option value="Prospective">Prospective</option>
+            <option value="Inactive">Inactive / Closed</option>
+          </select>
+
+          <select
+            value={attorneyFilter}
+            onChange={(e) => setAttorneyFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-[#D0D5DD] rounded-lg bg-[#F9FAFB] text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#06244B] cursor-pointer"
+          >
+            <option value="">Assigned Counsel: All</option>
+            {attorneys.map((a) => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
+
+          {(searchQuery || statusFilter || attorneyFilter) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('');
+                setAttorneyFilter('');
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#667085] hover:text-[#A4432B] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              title="Clear all filters and search"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
 
