@@ -60,7 +60,7 @@ export function PIDashboard() {
       label: 'Matter #',
       sortable: true,
       render: (val, c) => (
-        <span className="font-semibold text-[#06244B] bg-[#F5F0E5] px-2 py-0.5 rounded text-xs">
+        <span className="inline-block whitespace-nowrap font-semibold text-[#06244B] bg-[#F5F0E5] px-2 py-0.5 rounded text-xs">
           {c?.matterNumber || val || '—'}
         </span>
       ),
@@ -70,14 +70,14 @@ export function PIDashboard() {
       label: 'Client / Case Title',
       sortable: true,
       render: (val, c) => (
-        <div>
+        <div className="min-w-[160px] max-w-[220px]">
           <span
             className="font-bold text-[#06244B] block hover:underline cursor-pointer"
             onClick={() => navigate('/personal-injury/incident-liability')}
           >
             {c?.clientName || val || 'Unnamed Client'}
           </span>
-          <span className="text-[11px] text-[#667085] truncate block max-w-xs">{c?.matterTitle || '—'}</span>
+          <span className="text-[11px] text-[#667085] truncate block">{c?.matterTitle || '—'}</span>
         </div>
       ),
     },
@@ -85,7 +85,7 @@ export function PIDashboard() {
       key: 'accidentType',
       label: 'Accident Category',
       render: (val, c) => (
-        <span className="text-xs text-slate-700 font-medium truncate block max-w-xs">
+        <span title={c?.accidentType || val} className="text-xs text-slate-700 font-medium truncate block max-w-[150px]">
           {c?.accidentType || val || 'Not Specified'}
         </span>
       ),
@@ -101,7 +101,7 @@ export function PIDashboard() {
       align: 'right',
       sortable: true,
       render: (val, c) => (
-        <span className="font-semibold text-slate-900">
+        <span className="font-semibold text-slate-900 whitespace-nowrap">
           {formatCurrency(c?.medicalBillsTotal ?? val ?? 0)}
         </span>
       ),
@@ -112,7 +112,7 @@ export function PIDashboard() {
       align: 'right',
       sortable: true,
       render: (val, c) => (
-        <span className="font-bold text-[#A4432B]">
+        <span className="font-bold text-[#A4432B] whitespace-nowrap">
           {(c?.targetDemand ?? val) ? formatCurrency(c?.targetDemand ?? val) : 'TBD'}
         </span>
       ),
@@ -121,7 +121,7 @@ export function PIDashboard() {
       key: 'statuteOfLimitations',
       label: 'SoL Bar Date',
       render: (val, c) => (
-        <span className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+        <span className="inline-block whitespace-nowrap text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
           {c?.statuteOfLimitations || val || 'N/A'}
         </span>
       ),
@@ -170,7 +170,7 @@ export function PIDashboard() {
       />
 
       {/* 6 Key Performance Metric Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
         <StatCard
           title="Total PI Cases"
           value={totalCases}
@@ -224,7 +224,7 @@ export function PIDashboard() {
               Active progression from incident intake through medical recovery to final settlement disbursement.
             </p>
           </div>
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs shrink-0">
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Intake (20%)</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Treatment (40%)</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> Demands (20%)</span>

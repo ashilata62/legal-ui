@@ -45,10 +45,10 @@ export function PINavigationHeader({
       {/* Top Banner & Context Bar */}
       <div className="bg-[#06244B] text-white rounded-xl p-5 shadow-sm border border-[#0B356D]">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-slate-300 font-mono">
-              <span>Specialty Practice</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#A4432B]" />
+          <div className="space-y-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-semibold tracking-wider uppercase text-slate-300 font-mono">
+              <span className="whitespace-nowrap">Specialty Practice</span>
+              <ChevronRight className="w-3.5 h-3.5 text-[#A4432B] shrink-0" />
               <span className="text-white">Personal Injury &amp; Wrongful Death</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">
@@ -115,8 +115,8 @@ export function PINavigationHeader({
       </div>
 
       {/* 9 Dedicated Navigation Tabs */}
-      <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-1.5 overflow-x-auto">
-        <nav className="flex space-x-1 min-w-max">
+      <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-1.5">
+        <nav className="flex flex-wrap items-center gap-1">
           {PI_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -125,7 +125,7 @@ export function PINavigationHeader({
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors duration-150 ${isActive
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors duration-150 ${isActive
                     ? 'bg-[#06244B] text-white shadow-sm'
                     : 'text-[#667085] hover:text-[#06244B] hover:bg-slate-100'
                   }`}
