@@ -36,11 +36,7 @@ import {
   Activity,
   Shield,
   Stethoscope,
-  DollarSign,
-  Gavel,
-  Heart,
-  Home,
-  Scroll
+  DollarSign
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -83,7 +79,6 @@ export function Sidebar({ collapsed, setCollapsed }) {
         personalInjury: true,
       }));
     } else if (
-      location.pathname.startsWith('/litigation') ||
       location.pathname.startsWith('/immigration') ||
       location.pathname.startsWith('/bankruptcy')
     ) {
@@ -159,12 +154,6 @@ export function Sidebar({ collapsed, setCollapsed }) {
           icon: Scale,
           isGroup: true,
           nestedItems: [
-            { label: 'Litigation Docket (Sec 3-8)', to: '/litigation/dashboard', icon: Gavel },
-            { label: 'Probate & Trusts (Sec 20)', to: '/probate', icon: Scroll },
-            { label: 'Family Law & Divorce (Sec 21)', to: '/family-law', icon: Heart },
-            { label: 'Criminal Defense (Sec 22)', to: '/criminal', icon: Shield },
-            { label: 'Appeals Docket (Sec 23)', to: '/appeals', icon: Scale },
-            { label: 'Evictions & Tenants (Sec 24)', to: '/evictions', icon: Home },
             { label: 'Immigration Docket', to: '/immigration/cases', icon: Globe },
             { label: 'Bankruptcy Docket', to: '/bankruptcy/cases', icon: Landmark },
             {
