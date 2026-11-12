@@ -64,6 +64,7 @@ import { CosmoLexSettings } from '../features/integrations/pages/CosmoLexSetting
 import { StaffReports } from '../features/reports/pages/StaffReports';
 import { MatterReports } from '../features/reports/pages/MatterReports';
 import { FinancialReports } from '../features/reports/pages/FinancialReports';
+import { ComplianceMatrix } from '../features/reports/pages/ComplianceMatrix';
 import { UserManagement } from '../features/settings/pages/UserManagement';
 import { RolesPermissions } from '../features/settings/pages/RolesPermissions';
 import { TemplatesSettings } from '../features/settings/pages/TemplatesSettings';
@@ -404,6 +405,14 @@ export const router = createBrowserRouter([
             <FinancialReports />
           </RoleRoute>
         ),
+      },
+      {
+        path: 'compliance',
+        element: <ComplianceMatrix />,
+      },
+      {
+        path: 'reports/compliance',
+        element: <ComplianceMatrix />,
       },
       {
         path: 'settings',

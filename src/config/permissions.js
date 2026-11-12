@@ -495,6 +495,8 @@ export const ROUTE_PERMISSIONS = {
   '/reports/staff': PERMISSIONS.REPORTS_STAFF_VIEW,
   '/reports/matters': PERMISSIONS.REPORTS_MATTER_VIEW,
   '/reports/financial': PERMISSIONS.REPORTS_FINANCIAL_VIEW,
+  '/reports/compliance': PERMISSIONS.REPORTS_MATTER_VIEW,
+  '/compliance': PERMISSIONS.REPORTS_MATTER_VIEW,
 
   '/settings/users': PERMISSIONS.USERS_VIEW,
   '/settings/roles': PERMISSIONS.ROLES_VIEW,

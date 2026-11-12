@@ -31,7 +31,8 @@ import {
   Sparkles,
   Bell,
   Scale,
-  Calculator
+  Calculator,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -134,6 +135,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
       label: '5. Reports & Settings',
       icon: Settings,
       subItems: [
+        { label: 'RFP Compliance Matrix (Req 9)', to: '/reports/compliance', icon: Award },
         { label: 'Attorney & Staff Reports', to: '/reports/staff', icon: FileSpreadsheet },
         { label: 'Matter & Practice Reports', to: '/reports/matters', icon: FolderOpen },
         { label: 'Financial & Billing Reports', to: '/reports/financial', icon: CreditCard },
