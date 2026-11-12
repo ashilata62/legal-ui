@@ -229,15 +229,14 @@ export function BankruptcyCasesList() {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-white border-white/30 hover:bg-white/10 hover:text-white"
-            icon={Download}
+          <button
+            type="button"
             onClick={() => handleOpenEcfModal(cases[0])}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#06244B] hover:bg-slate-100 font-bold text-xs shadow-sm transition-all cursor-pointer"
           >
-            Compile ECF Package
-          </Button>
+            <Download className="w-4 h-4 text-[#A4432B]" />
+            <span>Compile ECF Package</span>
+          </button>
         </div>
       </div>
 
