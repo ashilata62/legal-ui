@@ -499,6 +499,7 @@ export const ROUTE_PERMISSIONS = {
   '/settings/users': PERMISSIONS.USERS_VIEW,
   '/settings/roles': PERMISSIONS.ROLES_VIEW,
   '/settings/templates': PERMISSIONS.TEMPLATES_VIEW,
+  '/settings/workflows': PERMISSIONS.TEMPLATES_VIEW,
   '/settings/integrations': PERMISSIONS.INTEGRATIONS_VIEW,
   '/settings/branding': PERMISSIONS.BRANDING_MANAGE,
   '/settings/notifications': PERMISSIONS.NOTIFICATIONS_MANAGE,

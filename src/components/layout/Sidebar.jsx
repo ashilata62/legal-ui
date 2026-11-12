@@ -140,6 +140,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
         { label: 'User Management', to: '/settings/users', icon: Users },
         { label: 'Roles & Permissions', to: '/settings/roles', icon: UserCheck },
         { label: 'Templates & Workflows', to: '/settings/templates', icon: FileText },
+        { label: 'Workflow Configurator', to: '/settings/workflows', icon: Layers },
         { label: 'Integrations & Cloud', to: '/settings/integrations', icon: Database },
         { label: 'Firm Branding', to: '/settings/branding', icon: SlidersHorizontal },
         { label: 'Notifications', to: '/settings/notifications', icon: Bell },

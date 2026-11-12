@@ -67,6 +67,7 @@ import { FinancialReports } from '../features/reports/pages/FinancialReports';
 import { UserManagement } from '../features/settings/pages/UserManagement';
 import { RolesPermissions } from '../features/settings/pages/RolesPermissions';
 import { TemplatesSettings } from '../features/settings/pages/TemplatesSettings';
+import { WorkflowManager } from '../features/settings/pages/WorkflowManager';
 import { ExternalIntegrations } from '../features/settings/pages/ExternalIntegrations';
 import { FirmBranding } from '../features/settings/pages/FirmBranding';
 import { NotificationsSettings } from '../features/settings/pages/NotificationsSettings';
@@ -417,6 +418,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleRoute allowedRoles={['super_admin', 'supervisor', 'attorney', 'paralegal']}>
             <TemplatesSettings />
+          </RoleRoute>
+        ),
+      },
+      {
+        path: 'settings/workflows',
+        element: (
+          <RoleRoute allowedRoles={['super_admin', 'supervisor']}>
+            <WorkflowManager />
           </RoleRoute>
         ),
       },
