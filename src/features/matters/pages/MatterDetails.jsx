@@ -20,7 +20,8 @@ import {
   Send,
   Globe,
   Landmark,
-  Lock
+  Lock,
+  Activity
 } from 'lucide-react';
 import { useMatters } from '../../../context/MatterContext';
 import { useTasks } from '../../../context/TaskContext';
@@ -234,10 +235,14 @@ export function MatterDetails() {
       <StageProgressBar matter={matter} />
 
       {/* Specialty Practice Docket Integration Banner */}
-      {(matter.specializedDocketUrl || matter.practiceAreaName?.includes('Immigration') || matter.practiceAreaName?.includes('Bankruptcy')) && (
+      {(matter.specializedDocketUrl || matter.practiceAreaName?.includes('Immigration') || matter.practiceAreaName?.includes('Bankruptcy') || matter.practiceAreaName?.includes('Personal Injury')) && (
         <div className="bg-slate-50 border border-[#D9D6CF] rounded-lg p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-2.5">
-            {matter.practiceAreaName?.includes('Immigration') ? (
+            {matter.practiceAreaName?.includes('Personal Injury') ? (
+              <div className="w-8 h-8 rounded bg-red-100 text-red-800 flex items-center justify-center shrink-0">
+                <Activity className="w-4 h-4 text-[#A4432B]" />
+              </div>
+            ) : matter.practiceAreaName?.includes('Immigration') ? (
               <div className="w-8 h-8 rounded bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
                 <Globe className="w-4 h-4" />
               </div>
@@ -251,15 +256,17 @@ export function MatterDetails() {
                 Cross-Practice Specialty Docket Integration
               </span>
               <span className="text-[11px] text-[#667085]">
-                {matter.practiceAreaName?.includes('Immigration')
+                {matter.practiceAreaName?.includes('Personal Injury')
+                  ? 'Linked to Personal Injury Workspace (Incident investigation, Medical treatments/bills ledger, Demands builder, Liens & Settlement calculator).'
+                  : matter.practiceAreaName?.includes('Immigration')
                   ? 'Linked to Immigration Workspace (Forms I-130/I-485, USCIS receipts, Alien registration numbers, and translation questionnaires).'
                   : 'Linked to Bankruptcy Practice Workspace (Schedules A/B-J, Form 122 Means-Test, Utah exemptions, and Creditor Matrix).'}
               </span>
             </div>
           </div>
-          <Link to={matter.specializedDocketUrl || (matter.practiceAreaName?.includes('Immigration') ? '/immigration/cases' : '/bankruptcy/cases')}>
+          <Link to={matter.specializedDocketUrl || (matter.practiceAreaName?.includes('Personal Injury') ? '/personal-injury/dashboard' : matter.practiceAreaName?.includes('Immigration') ? '/immigration/cases' : '/bankruptcy/cases')}>
             <Button size="sm" variant="outline" className="font-semibold text-xs border-[#06244B] text-[#06244B] hover:bg-[#06244B] hover:text-white">
-              Launch {matter.practiceAreaName?.includes('Immigration') ? 'Immigration Docket' : 'Bankruptcy Docket'}
+              Launch {matter.practiceAreaName?.includes('Personal Injury') ? 'Personal Injury Docket' : matter.practiceAreaName?.includes('Immigration') ? 'Immigration Docket' : 'Bankruptcy Docket'}
             </Button>
           </Link>
         </div>

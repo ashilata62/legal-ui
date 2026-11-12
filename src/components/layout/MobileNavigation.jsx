@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   X,
@@ -32,7 +32,12 @@ import {
   SlidersHorizontal,
   Bell,
   UserPlus,
-  FolderPlus
+  FolderPlus,
+  Shield,
+  Stethoscope,
+  DollarSign,
+  Calculator,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -58,11 +63,17 @@ export function MobileNavigation({
 
   // Active accordion section management (defaults to the currently visited section)
   const [expandedSections, setExpandedSections] = useState({
-    clients: location.pathname.startsWith('/clients') || location.pathname.startsWith('/matters') || location.pathname.startsWith('/intake') || location.pathname.startsWith('/documents') || location.pathname.startsWith('/communications') || location.pathname.startsWith('/client-portal') || location.pathname.startsWith('/immigration') || location.pathname.startsWith('/bankruptcy'),
+    clients: location.pathname.startsWith('/clients') || location.pathname.startsWith('/matters') || location.pathname.startsWith('/intake') || location.pathname.startsWith('/documents') || location.pathname.startsWith('/communications') || location.pathname.startsWith('/client-portal') || location.pathname.startsWith('/immigration') || location.pathname.startsWith('/bankruptcy') || location.pathname.startsWith('/personal-injury'),
     tasks: location.pathname.startsWith('/tasks') || location.pathname.startsWith('/calendar') || location.pathname.startsWith('/deadlines') || location.pathname.startsWith('/time') || location.pathname.startsWith('/checklists'),
     billing: location.pathname.startsWith('/billing'),
     settings: location.pathname.startsWith('/reports') || location.pathname.startsWith('/settings'),
   });
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/personal-injury') || location.pathname.startsWith('/clients') || location.pathname.startsWith('/matters') || location.pathname.startsWith('/immigration') || location.pathname.startsWith('/bankruptcy')) {
+      setExpandedSections(prev => ({ ...prev, clients: true }));
+    }
+  }, [location.pathname]);
 
   const toggleSection = (sectionKey) => {
     setExpandedSections(prev => ({
@@ -91,6 +102,15 @@ export function MobileNavigation({
         { label: 'Intake & Conflicts', to: '/intake', icon: UserCheck },
         { label: 'Immigration Docket', to: '/immigration/cases', icon: Globe },
         { label: 'Bankruptcy Docket', to: '/bankruptcy/cases', icon: Landmark },
+        { label: 'PI Dashboard', to: '/personal-injury/dashboard', icon: LayoutDashboard },
+        { label: 'Incident & Liability', to: '/personal-injury/incident-liability', icon: ShieldAlert },
+        { label: 'Client & Damages', to: '/personal-injury/client-damages', icon: UserCheck },
+        { label: 'Insurance Management', to: '/personal-injury/insurance', icon: Shield },
+        { label: 'Medical Treatment & Records', to: '/personal-injury/medical-treatment', icon: Stethoscope },
+        { label: 'Vendor Assignments', to: '/personal-injury/vendor-assignments', icon: Briefcase },
+        { label: 'Demand Packages', to: '/personal-injury/demand-packages', icon: FileText },
+        { label: 'Lien Register', to: '/personal-injury/lien-register', icon: DollarSign },
+        { label: 'Settlement Calculator', to: '/personal-injury/settlement-calculator', icon: Calculator },
         { label: 'Documents', to: '/documents', icon: FileText },
         { label: 'Communications', to: '/communications', icon: Mail },
         { label: 'Client Portal', to: '/client-portal', icon: Eye },
