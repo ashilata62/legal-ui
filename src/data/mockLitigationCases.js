@@ -328,3 +328,4 @@ export const MOCK_LITIGATION_CASES = [
     }
   }
 ];
+

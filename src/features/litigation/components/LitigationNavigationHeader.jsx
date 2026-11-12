@@ -91,3 +91,4 @@ export function LitigationNavigationHeader({ activeCase, cases = [], onSelectCas
     </div>
   );
 }
+
