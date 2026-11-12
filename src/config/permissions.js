@@ -486,6 +486,7 @@ export const ROUTE_PERMISSIONS = {
   '/billing/reports': PERMISSIONS.BILLING_REPORTS_VIEW,
   '/billing/operating': PERMISSIONS.OPERATING_ACCOUNT_VIEW,
   '/billing/trust': PERMISSIONS.TRUST_ACCOUNT_VIEW,
+  '/billing/reconciliation': PERMISSIONS.TRUST_ACCOUNT_VIEW,
   '/billing/chart-of-accounts': PERMISSIONS.OPERATING_ACCOUNT_VIEW,
   '/billing/general-ledger': PERMISSIONS.OPERATING_ACCOUNT_VIEW,
   '/billing/cosmolex': PERMISSIONS.COSMOLEX_VIEW,

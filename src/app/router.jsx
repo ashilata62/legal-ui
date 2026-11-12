@@ -56,6 +56,7 @@ import { OperatingAccount } from '../features/billing/pages/OperatingAccount';
 import { TrustAccount } from '../features/billing/pages/TrustAccount';
 import { ChartOfAccounts } from '../features/billing/pages/ChartOfAccounts';
 import { GeneralLedgerView } from '../features/billing/pages/GeneralLedgerView';
+import { ThreeWayReconciliation } from '../features/billing/pages/ThreeWayReconciliation';
 import { CosmoLexSettings } from '../features/integrations/pages/CosmoLexSettings';
 
 // Module 5: Reports & Settings
@@ -346,12 +347,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'billing/cosmolex',
+        path: 'billing/reconciliation',
         element: (
-          <RoleRoute allowedRoles={['super_admin', 'billing']}>
-            <CosmoLexSettings />
+          <RoleRoute allowedRoles={['super_admin', 'supervisor', 'billing']}>
+            <ThreeWayReconciliation />
           </RoleRoute>
         ),
+      },
+      {
+        path: 'billing/cosmolex',
+        element: <Navigate to="/billing/reconciliation" replace />,
       },
       // Module 5: Reports & Settings
       {

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
+  ShieldCheck,
   Landmark,
   Lock,
   AlertCircle,
@@ -11,7 +13,8 @@ import {
   FileCheck,
   CheckCircle2,
   DollarSign,
-  FileText
+  FileText,
+  Scale
 } from 'lucide-react';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -21,6 +24,7 @@ import { useToast } from '../../../components/ui/Toast';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
 export function TrustAccount() {
+  const navigate = useNavigate();
   const { addToast } = useToast();
 
   const [ledgers, setLedgers] = useState([
@@ -118,16 +122,16 @@ export function TrustAccount() {
 
   return (
     <div className="space-y-6">
-      {/* Simulation Banner */}
-      <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center justify-between text-xs text-amber-900">
+      {/* Standalone Accounting Banner */}
+      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center justify-between text-xs text-emerald-950">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0" />
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
           <span>
-            <strong>[DEMO SIMULATION] IOLTA Client Trust Account:</strong> Strictly segregated client retainers adhering to Utah Rules of Professional Conduct 1.15. Authoritative accounting synchronizes with CosmoLex.
+            <strong>Independent Client Trust Accounting (Utah RPC 1.15):</strong> Operating autonomously with full segregated sub-ledgers and monthly three-way reconciliation. Completely independent of CosmoLex.
           </span>
         </div>
-        <span className="bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded text-[10px]">
-          PROTOTYPE
+        <span className="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">
+          AUTONOMOUS IOLTA
         </span>
       </div>
 
@@ -137,6 +141,14 @@ export function TrustAccount() {
         breadcrumbs={[{ label: 'Billing & Accounting', to: '/billing' }, { label: 'Trust Account' }]}
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Scale}
+              onClick={() => navigate('/billing/reconciliation')}
+            >
+              3-Way Reconciliation Tool
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -173,12 +185,18 @@ export function TrustAccount() {
           </span>
           <span className="text-[11px] text-[#667085]">Zero commingling between client funds</span>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
-          <span className="text-xs text-[#667085] uppercase font-bold block">Three-Way Reconciliation</span>
+        <div
+          onClick={() => navigate('/billing/reconciliation')}
+          className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm hover:border-[#A4432B] transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#667085] uppercase font-bold block">Three-Way Reconciliation</span>
+            <span className="text-[10px] text-[#A4432B] font-semibold group-hover:underline">Open Tool &rarr;</span>
+          </div>
           <span className="text-2xl font-bold text-emerald-700 mt-1 block flex items-center gap-1.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600" /> Reconciled
           </span>
-          <span className="text-[11px] text-[#667085]">Bank = Book = Individual Sub-Ledgers</span>
+          <span className="text-[11px] text-[#667085]">Bank ($74.2k) = Book = Sub-Ledgers</span>
         </div>
         <div className="bg-white p-4 rounded-lg border border-[#D9D6CF] shadow-sm">
           <span className="text-xs text-[#667085] uppercase font-bold block">Utah Bar Foundation</span>

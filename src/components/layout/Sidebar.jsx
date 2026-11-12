@@ -29,7 +29,8 @@ import {
   Layers,
   Database,
   Sparkles,
-  Bell
+  Bell,
+  Scale
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -123,7 +124,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
         { label: 'IOLTA Trust Account', to: '/billing/trust', icon: ShieldAlert },
         { label: 'Chart of Accounts', to: '/billing/chart-of-accounts', icon: Landmark },
         { label: 'General Ledger', to: '/billing/general-ledger', icon: FileSpreadsheet },
-        { label: 'CosmoLex Export', to: '/billing/cosmolex', icon: Database },
+        { label: '3-Way Reconciliation', to: '/billing/reconciliation', icon: Scale },
       ],
     },
     {
